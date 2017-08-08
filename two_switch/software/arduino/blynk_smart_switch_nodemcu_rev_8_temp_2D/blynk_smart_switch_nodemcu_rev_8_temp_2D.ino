@@ -24,16 +24,6 @@ const int d2_hw_switch_pin_1 = 13;
 
 const int d1_op_pin_1 = 16;
 const int d2_op_pin_1 = 14;
-//
-const int buttonPin = 0;    // the number of the pushbutton pin
-const int ledPin = 16;      // the number of the LED pin
-int ledState = HIGH;         // the current state of the output pin
-int buttonState;             // the current reading from the input pin
-int lastButtonState = LOW;   // the previous reading from the input pin
-long lastDebounceTime = 0;  // the last time the output pin was toggled
-long debounceDelay = 50;    // the debounce time; increase if the output flickers
-long previous_millis=0;
-
 
 ////////////////////////////////////////////////////////
 const int vir_equipment_name_pin_1 = 0;
@@ -104,10 +94,11 @@ int d2_scheduler_var;
 int d2_hw_switch_1_state = HIGH;
 
 ///////////////////////////////////////////////////////
+long d1_hw_switch_1_previous_millis = 0;
+long d2_hw_switch_1_previous_millis = 0;
 
-long lastDebounceTime = 0;  // the last time the output pin was toggled
-long debounceDelay = 1000;    // the debounce time; increase if the output flickers
-int buttonState;             // the current reading from the input pin
+int d1_hw_switch_1_reset_count = 0;
+int d2_hw_switch_1_reset_count = 0;
 
 //////////////////////////////////////////////////////
 
@@ -347,34 +338,28 @@ void upd_d1_hw_switch_1_func()
     d1_state = !d1_state;
     Blynk.virtualWrite(vir_d1_man_button_pin_1, d1_state);
     d1_update();
-    //new code for reset
     
-      int reading = digitalRead(buttonPin);
-  if (reading != lastButtonState) {
-    lastDebounceTime = millis();
-  }
-  if ((millis() - lastDebounceTime) > debounceDelay ) {
-    if (reading != buttonState) {
-      buttonState = reading;
-      if (buttonState == HIGH) {
-        if ((millis() - previous_millis)>1500)
-        {
-          Serial.println("1");  
-        }
-        else
-        {
-           Serial.println("0");  
-        }
-        previous_millis= millis();
+    if ((millis() - d1_hw_switch_1_previous_millis) > 1500)
+    {
+      d1_hw_switch_1_reset_count = 0;
+      DEBUG_PRINT("start_d1_sw");
+    }
+    else
+    {
+     d1_hw_switch_1_reset_count =d1_hw_switch_1_reset_count + 1;
+      DEBUG_PRINT(d1_hw_switch_1_reset_count);
+      if (d1_hw_switch_1_reset_count == 20)
+      {
+        
+        DEBUG_PRINT("reset");
+         config_reset();
       }
     }
-  }
-  lastButtonState = reading;
-}
-  }
+    d1_hw_switch_1_previous_millis = millis();
 
+  }
 }
-
+///////////////////////////////
 void upd_d2_hw_switch_1_func()
 {
   if (digitalRead(d2_hw_switch_pin_1) != d2_hw_switch_1_state)
@@ -383,13 +368,27 @@ void upd_d2_hw_switch_1_func()
     d2_state = !d2_state;
     Blynk.virtualWrite(vir_d2_man_button_pin_1, d2_state);
     d2_update();
+     if ((millis() - d2_hw_switch_1_previous_millis) > 1500)
+    {
+      d2_hw_switch_1_reset_count = 0;
+      DEBUG_PRINT("start_d2_sw");
+    }
+    else
+    {
+      d2_hw_switch_1_reset_count = d2_hw_switch_1_reset_count + 1;
+      DEBUG_PRINT(d2_hw_switch_1_reset_count);
+      if (d2_hw_switch_1_reset_count== 20)
+      {
+        DEBUG_PRINT("reset");
+         config_reset();
+      }
+    }
+    d2_hw_switch_1_previous_millis = millis();
   }
 }
 void upd_equipment_detail_func()
 {
   Blynk.virtualWrite(vir_rssi_pin_1,  WiFi.RSSI() + 120);
-  // Blynk.virtualWrite(vir_equipment_ip_address_pin_1, (WiFi.localIP().toString()));
-
 }
 
 
@@ -450,8 +449,8 @@ void setup() {
 
   acs_timer.setInterval(3000, amp_mes_func);
 
-  d1_hw_switch_timer.setInterval(500, upd_d1_hw_switch_1_func);
-  d2_hw_switch_timer.setInterval(500, upd_d2_hw_switch_1_func);
+  d1_hw_switch_timer.setInterval(300, upd_d1_hw_switch_1_func);
+  d2_hw_switch_timer.setInterval(300, upd_d2_hw_switch_1_func);
 
   d1_scheduled_timer.setInterval(10000, d1_scheduled_func);
   d2_scheduled_timer.setInterval(10000, d2_scheduled_func);
@@ -474,17 +473,4 @@ void loop() {
   acs_timer.run(); rtc_time_req_timer.run(); upd_equipment_detail_timer.run();
   d1_hw_switch_timer.run(); d1_scheduled_timer.run();
   d2_hw_switch_timer.run(); d2_scheduled_timer.run();
-  if (Blynk.connected() == false)
-  {
-    Serial.println("blynk disconnected");
-  }
-
-
-
-
-
 }
-//eeprom_d_id
-//ex
-//lst
-//upd_equip
