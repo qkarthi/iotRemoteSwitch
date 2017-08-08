@@ -18,8 +18,8 @@ WidgetRTC rtc;
 //////////////////////////////////////////////////////
 const int sensorIn = A0;
 
-const int d1_hw_switch_pin_1 = 0; // nodemcu
-//const int d1_hw_switch_pin_1 = 12; //lab
+//const int d1_hw_switch_pin_1 = 0; // nodemcu
+const int d1_hw_switch_pin_1 = 12; //lab
 const int d2_hw_switch_pin_1 = 13;
 
 const int d1_op_pin_1 = 16;
@@ -339,7 +339,7 @@ void upd_d1_hw_switch_1_func()
     Blynk.virtualWrite(vir_d1_man_button_pin_1, d1_state);
     d1_update();
     
-    if ((millis() - d1_hw_switch_1_previous_millis) > 1500)
+    if ((millis() - d1_hw_switch_1_previous_millis) > 2000)
     {
       d1_hw_switch_1_reset_count = 0;
       DEBUG_PRINT("start_d1_sw");
@@ -449,8 +449,8 @@ void setup() {
 
   acs_timer.setInterval(3000, amp_mes_func);
 
-  d1_hw_switch_timer.setInterval(300, upd_d1_hw_switch_1_func);
-  d2_hw_switch_timer.setInterval(300, upd_d2_hw_switch_1_func);
+  d1_hw_switch_timer.setInterval(500, upd_d1_hw_switch_1_func);
+  d2_hw_switch_timer.setInterval(500, upd_d2_hw_switch_1_func);
 
   d1_scheduled_timer.setInterval(10000, d1_scheduled_func);
   d2_scheduled_timer.setInterval(10000, d2_scheduled_func);
