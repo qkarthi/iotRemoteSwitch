@@ -18,17 +18,22 @@ WidgetRTC rtc;
 //////////////////////////////////////////////////////
 const int sensorIn = A0;
 
-const int d1_hw_switch_pin_1 = 12;
+const int d1_hw_switch_pin_1 = 0; // nodemcu
+//const int d1_hw_switch_pin_1 = 12; //lab
 const int d2_hw_switch_pin_1 = 13;
 
 const int d1_op_pin_1 = 16;
 const int d2_op_pin_1 = 14;
+//
+const int buttonPin = 0;    // the number of the pushbutton pin
+const int ledPin = 16;      // the number of the LED pin
+int ledState = HIGH;         // the current state of the output pin
+int buttonState;             // the current reading from the input pin
+int lastButtonState = LOW;   // the previous reading from the input pin
+long lastDebounceTime = 0;  // the last time the output pin was toggled
+long debounceDelay = 50;    // the debounce time; increase if the output flickers
+long previous_millis=0;
 
-
-//const int d1_hw_switch_pin_1 = 0; // nodemcu
-//const int d1_op_pin_1 = 16;       // nodemcu
-//const int d1_hw_switch_pin_1 = 12;  //lab
-//const int d1_op_pin_1 = 14;         //lab
 
 ////////////////////////////////////////////////////////
 const int vir_equipment_name_pin_1 = 0;
@@ -100,6 +105,11 @@ int d2_hw_switch_1_state = HIGH;
 
 ///////////////////////////////////////////////////////
 
+long lastDebounceTime = 0;  // the last time the output pin was toggled
+long debounceDelay = 1000;    // the debounce time; increase if the output flickers
+int buttonState;             // the current reading from the input pin
+
+//////////////////////////////////////////////////////
 
 void d1_update() {
   digitalWrite(d1_op_pin_1, d1_state);
@@ -285,8 +295,7 @@ BLYNK_WRITE(V99)/////////////////////
     /////////
   } else  if ((String("f") == term_char_one) & (String("actory_reset") == term_char_rest) ) {
     terminal.println(" ");
-    terminal.write("factory reset will initiated in 3 seconds");
-    terminal.println(" ");
+    terminal.println("factory reset will initiated in 3 seconds");
     terminal.flush();
     Blynk.virtualWrite(99, "success");
     delay(3000);
@@ -294,46 +303,36 @@ BLYNK_WRITE(V99)/////////////////////
   } else  if ((String("i") == term_char_one) & (String("p_address") == term_char_rest) ) {
     terminal.println(" ");
     terminal.println(WiFi.localIP().toString());
-    terminal.println(" ");
-    terminal.flush();
-    Blynk.virtualWrite(99, "success");
   } else if ((String("r") == term_char_one) & (String("eboot") == term_char_rest)) {
     terminal.println(" ");
-    terminal.write("Device reboots in 3 seconds");
-    terminal.println(" ");
+    terminal.println("Device reboots in 3 seconds");
     terminal.flush();
-    Blynk.virtualWrite(99, "success");
     delay(3000);
     ESP.restart();
   }  else if ((String("t") == term_char_one) & (String("ime") == term_char_rest)) {
     terminal.println(" ");
     term_time_string = String(hour()) + ":" + String(minute()) + ":" + String(second());
     terminal.println(term_time_string);
-    terminal.println(" ");
   } else  if ((String("*") == term_char_one)) {
     Blynk.virtualWrite(vir_equipment_name_pin_1, term_char_rest);
     CopyString(term_char_rest, configStore.equip_name);
     config_save();
     run_ota_func();
     Blynk.virtualWrite(99,  configStore.equip_name);
-    Blynk.virtualWrite(99, "success");
+    terminal.println("success");
   }  else if (String("1") == term_char_one) {
     Blynk.virtualWrite(vir_d1_label_pin_1, term_char_rest);
     Blynk.virtualWrite(vir_d1_label_pin_2, term_char_rest);
     Blynk.virtualWrite(vir_d1_label_pin_3, term_char_rest);
     Blynk.setProperty(vir_d1_man_button_pin_1, "label", term_char_rest);
-    terminal.write("success");
+    terminal.println("success");
   } else if (String("2") == term_char_one) {
     Blynk.virtualWrite(vir_d2_label_pin_1, term_char_rest);
     Blynk.virtualWrite(vir_d2_label_pin_2, term_char_rest);
     Blynk.virtualWrite(vir_d2_label_pin_3, term_char_rest);
     Blynk.setProperty(vir_d2_man_button_pin_1, "label", term_char_rest);
-    terminal.write("success");
+    terminal.println("success");
   }
-  else {
-    terminal.write("ERROR");
-  }
-  terminal.println(" ");
   terminal.flush();
 }
 
@@ -348,7 +347,32 @@ void upd_d1_hw_switch_1_func()
     d1_state = !d1_state;
     Blynk.virtualWrite(vir_d1_man_button_pin_1, d1_state);
     d1_update();
+    //new code for reset
+    
+      int reading = digitalRead(buttonPin);
+  if (reading != lastButtonState) {
+    lastDebounceTime = millis();
   }
+  if ((millis() - lastDebounceTime) > debounceDelay ) {
+    if (reading != buttonState) {
+      buttonState = reading;
+      if (buttonState == HIGH) {
+        if ((millis() - previous_millis)>1500)
+        {
+          Serial.println("1");  
+        }
+        else
+        {
+           Serial.println("0");  
+        }
+        previous_millis= millis();
+      }
+    }
+  }
+  lastButtonState = reading;
+}
+  }
+
 }
 
 void upd_d2_hw_switch_1_func()
@@ -454,6 +478,11 @@ void loop() {
   {
     Serial.println("blynk disconnected");
   }
+
+
+
+
+
 }
 //eeprom_d_id
 //ex
