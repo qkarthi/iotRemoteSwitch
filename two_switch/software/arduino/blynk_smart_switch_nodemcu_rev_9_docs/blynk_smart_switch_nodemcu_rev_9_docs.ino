@@ -41,6 +41,8 @@ const int vir_amp_pin_1 = 4;
 const int vir_watts_pin_1 = 5;
 const int vir_watts_pin_2 = 6;
 const int vir_watts_pin_3 = 7;
+
+const int vir_kwhr_pin_1 = 8;
 ///////////////////////////////////////////
 const int vir_master_power_off_man_button_pin_1 = 20;
 const int vir_d1_man_button_pin_1 = 11;
@@ -99,7 +101,7 @@ long d2_hw_switch_1_previous_millis = 0;
 
 int d1_hw_switch_1_reset_count = 0;
 int d2_hw_switch_1_reset_count = 0;
-
+float k_watt_hr_value;
 //////////////////////////////////////////////////////
 
 void d1_update() {
@@ -138,6 +140,10 @@ BLYNK_WRITE(V11)///////////////////
 {
   d1_state  = param.asInt();
   d1_update();
+}
+BLYNK_WRITE(V8)
+{
+  k_watt_hr_value = param.asFloat();
 }
 BLYNK_WRITE(V12)///////////////////
 {
@@ -308,7 +314,7 @@ BLYNK_WRITE(V99)/////////////////////
     Blynk.virtualWrite(vir_equipment_name_pin_1, term_char_rest);
     CopyString(term_char_rest, configStore.equip_name);
     config_save();
-    run_ota_func();
+    // run_ota_func();
     Blynk.virtualWrite(99,  configStore.equip_name);
     terminal.println("success");
   }  else if (String("1") == term_char_one) {
@@ -338,8 +344,6 @@ void upd_d1_hw_switch_1_func()
     d1_state = !d1_state;
     Blynk.virtualWrite(vir_d1_man_button_pin_1, d1_state);
     d1_update();
-    
-
   }
 }
 ///////////////////////////////
@@ -378,7 +382,7 @@ void amp_mes_func()
       minValue = readValue;
     }
   }
-  sensor_result = ((maxValue - minValue) * 5.0) //1024.0; converting to 5 v dc.
+  sensor_result = ((maxValue - minValue) * 5.0) / 1024.0; //converting to 5 v dc.
   VRMS = (sensor_result / 2.0) * 0.707; // root means square value
   AmpsRMS = (((VRMS * 1000) / mVperAmp) - 0.26);
   if ((d2_state == HIGH) | (d1_state = HIGH)) // checks if the device working or not for current sensor measurement
@@ -387,20 +391,30 @@ void amp_mes_func()
     {
       AmpsRMS = 0;
     }
+
+
+
+
+
     Blynk.virtualWrite(vir_sensor_pin_1, AmpsRMS);// sending values to virtual pin (sensor pin)
     Blynk.virtualWrite(vir_amp_pin_1, AmpsRMS);// sending values to virtual pin (amps)
     Blynk.virtualWrite(vir_watts_pin_1, AmpsRMS * 240);// sending values to virtual pin with multiples of 240 ( watts)
     Blynk.virtualWrite(vir_watts_pin_2, AmpsRMS * 240);// sending values to virtual pin with multiples of 240 ( watts)
     Blynk.virtualWrite(vir_watts_pin_3, AmpsRMS * 240);// sending values to virtual pin with multiples of 240 ( watts)
+    float watts_val = (AmpsRMS * 240);
+    float k_watts_val = (watts_val / 1000);
+    float k_watts_hr_val = (watts_val * 0.000277778 * 3);
+    k_watt_hr_value=k_watts_hr_val+k_watt_hr_value;
+    Blynk.virtualWrite(vir_kwhr_pin_1, k_watt_hr_value); //
   }
 }
 
-void run_ota_func() {
-  ArduinoOTA.setHostname(configStore.equip_name); // getting the value in eeprom
-  ArduinoOTA.setPort(8266); // port for host and file upload
-  ArduinoOTA.setPassword((const char *)"fslabfslab"); // fslabfslab is password
-  ArduinoOTA.begin(); 
-}
+//void run_ota_func() {
+//  ArduinoOTA.setHostname(configStore.equip_name); // getting the value in eeprom
+//  ArduinoOTA.setPort(8266); // port for host and file upload
+//  ArduinoOTA.setPassword((const char *)"fslabfslab"); // fslabfslab is password
+//  ArduinoOTA.begin();
+//}
 
 
 
@@ -421,25 +435,25 @@ void setup() {
   d1_scheduled_timer.setInterval(10000, d1_scheduled_func); // setting the device 1 timer with regular interval
   d2_scheduled_timer.setInterval(10000, d2_scheduled_func); // setting the device 2 timer with regular interval
 
-  pinMode(d1_hw_switch_pin_1, INPUT_PULLUP); // declaring the pin as input-pullup 
-  pinMode(d2_hw_switch_pin_1, INPUT_PULLUP); // declaring the pin as input-pullup 
-  
+  pinMode(d1_hw_switch_pin_1, INPUT_PULLUP); // declaring the pin as input-pullup
+  pinMode(d2_hw_switch_pin_1, INPUT_PULLUP); // declaring the pin as input-pullup
+
   pinMode(d1_op_pin_1, OUTPUT); // declaring the pin as output
   pinMode(d2_op_pin_1, OUTPUT); // declaring the pin as output
 
   d1_hw_switch_1_state = digitalRead(d1_hw_switch_pin_1); // getting the state of hardware device 1 switch
   d2_hw_switch_1_state = digitalRead(d2_hw_switch_pin_1); // getting the state of hardware device 2 switch
- // run_ota_func();   //uncomment ota function arduino  method
+  // run_ota_func();   //uncomment ota function arduino  method
 }
 
 void loop() {
   //ArduinoOTA.handle();  // uncomment to run the ota function arduino method
   BlynkProvisioning.run(); //used to run provision
-  
+
   acs_timer.run();  // used to run current sensor time
   rtc_time_req_timer.run();  //  used to run real time clock
   upd_equipment_detail_timer.run();  // used to update the wifi and device name
-  
+
   d1_hw_switch_timer.run(); d1_scheduled_timer.run();  //device 1's hardware switch timer and schedule timer
   d2_hw_switch_timer.run(); d2_scheduled_timer.run();  //device 2's hardware switch timer and schedule timer
 }
