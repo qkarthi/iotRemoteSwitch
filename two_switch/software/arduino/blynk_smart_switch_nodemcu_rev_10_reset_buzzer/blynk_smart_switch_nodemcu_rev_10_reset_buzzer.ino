@@ -25,6 +25,7 @@ const int d2_hw_switch_pin_1 = 13;
 const int d1_op_pin_1 = 16;
 const int d2_op_pin_1 = 14;
 
+
 ////////////////////////////////////////////////////////
 const int vir_equipment_name_pin_1 = 0;
 
@@ -86,6 +87,8 @@ double VRMS = 0;
 double AmpsRMS = 0;
 
 String term_string, term_char_one, term_char_rest, term_time_string;
+
+int wifi_auth_error_count = 0;
 
 int d1_state = LOW;
 int d1_scheduler_var_1;
@@ -169,8 +172,11 @@ void con_manager_func()
 {
   if (WiFi.status() == WL_CONNECTED)
   {
+    DEBUG_PRINT("wifi _ true ");
+
     if ((Blynk.connected()) == false)
     {
+      DEBUG_PRINT("blynk _ false ");
       digitalWrite(BOARD_BUZZER_PIN, HIGH);
       delay(500);
       digitalWrite(BOARD_BUZZER_PIN, LOW);
@@ -178,11 +184,20 @@ void con_manager_func()
       digitalWrite(BOARD_BUZZER_PIN, HIGH);
       delay(500);
       digitalWrite(BOARD_BUZZER_PIN, LOW);
+
       //beep twice for 10 sec
+    }
+    else {
+      DEBUG_PRINT("blynk _ true ");
     }
   }
   else
   {
+    digitalWrite(BOARD_BUZZER_PIN, HIGH);
+    delay(500);
+    digitalWrite(BOARD_BUZZER_PIN, LOW);
+    //beep once for 10 sec
+    DEBUG_PRINT("wifi _ false ");
     // lets scan for available ssid
     int n = WiFi.scanNetworks();
     //if ssid found
@@ -190,29 +205,30 @@ void con_manager_func()
     {
       for (int i = 0; i < n; ++i)
       { // check weather the ssid match with saved ssid
-        if (WiFi.SSID(i) == configStore.wifiSSID)
+
+        if (WiFi.SSID(i) == configStore.wifiSSID )
         {
-          //reset config
-          config_reset();
-        }
-        else {
-          digitalWrite(BOARD_BUZZER_PIN, HIGH);
-          delay(500);
-          digitalWrite(BOARD_BUZZER_PIN, LOW);
-          //beep once for 10 sec
+          WiFi.begin(configStore.wifiSSID, configStore.wifiPass);
+          wifi_auth_error_count++;
+          //Serial.println(wifi_auth_error_count);
+          if (wifi_auth_error_count > 10)
+          {
+            DEBUG_PRINT("wifi _ auth _ fail ");
+            //reset config
+            config_reset();
+          }
+
         }
       }
+    }
 
-    }
-    else
-    {
-      digitalWrite(BOARD_BUZZER_PIN, HIGH);
-      delay(500);
-      digitalWrite(BOARD_BUZZER_PIN, LOW);
-      //beep once for 10 sec
-    }
   }
 }
+
+
+
+
+
 
 
 
@@ -462,7 +478,13 @@ void amp_mes_func()
 //  ArduinoOTA.begin();
 //}
 
-
+void WiFiEvent(WiFiEvent_t event) {
+  switch (event) {
+    case WIFI_EVENT_STAMODE_GOT_IP:
+      wifi_auth_error_count = 0;
+      break;
+  }
+}
 
 void setup() {
   Serial.begin(115200); // declering the serial monitor with baudrate
@@ -488,6 +510,9 @@ void setup() {
 
   pinMode(d1_op_pin_1, OUTPUT); // declaring the pin as output
   pinMode(d2_op_pin_1, OUTPUT); // declaring the pin as output
+
+
+  WiFi.onEvent(WiFiEvent);
 
   d1_hw_switch_1_state = digitalRead(d1_hw_switch_pin_1); // getting the state of hardware device 1 switch
   d2_hw_switch_1_state = digitalRead(d2_hw_switch_pin_1); // getting the state of hardware device 2 switch
