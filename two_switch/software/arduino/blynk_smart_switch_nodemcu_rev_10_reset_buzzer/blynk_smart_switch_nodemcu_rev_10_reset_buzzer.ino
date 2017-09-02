@@ -170,6 +170,7 @@ BLYNK_WRITE(V20)///////////////////
 ////////////////////////////////////////////////////////
 void con_manager_func()
 {
+   DEBUG_PRINT("ver_2");
   if (WiFi.status() == WL_CONNECTED)
   {
     DEBUG_PRINT("wifi _ true ");

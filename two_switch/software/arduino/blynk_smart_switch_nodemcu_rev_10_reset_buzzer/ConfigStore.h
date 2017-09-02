@@ -13,6 +13,18 @@ struct ConfigStore {
   uint16_t  cloudPort;
   uint16_t  checksum;
   char      equip_name[34];
+  
+  char      mspace_1[24];
+  char      mspace_2[24];
+ 
+  char      mspace_3[24];
+  char      mspace_4[24];
+
+  char      mspace_5[24];
+  char      mspace_6[24];
+
+  char      mspace_7[24];
+  char      mspace_8[24];
 } __attribute__((packed));
 
 ConfigStore configStore;
