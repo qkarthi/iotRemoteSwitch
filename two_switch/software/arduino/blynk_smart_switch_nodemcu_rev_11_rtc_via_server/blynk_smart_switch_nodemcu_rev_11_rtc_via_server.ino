@@ -9,6 +9,7 @@
 #include <ArduinoOTA.h>
 #include <TimeLib.h>
 #include <WidgetRTC.h>
+
 //////////////////////////////////////////////////////
 BlynkTimer  con_manager, acs_timer, rtc_time_req_timer, upd_equipment_detail_timer;
 BlynkTimer  d1_hw_switch_timer, d2_hw_switch_timer;
@@ -20,12 +21,17 @@ WidgetRTC rtc;
 //////////////////////////////////////////////////////
 const int sensorIn = A0;
 
-//const int d1_hw_switch_pin_1 = 0; // nodemcu
-const int d1_hw_switch_pin_1 = 12; //lab
-const int d2_hw_switch_pin_1 = 13;
+// buzzer = 4 - d2
+// reset = 5 - d1
 
-const int d1_op_pin_1 = 16;
-const int d2_op_pin_1 = 14;
+
+const int d1_op_pin_1 = 16; //d0
+const int d2_op_pin_1 = 14; //d5
+
+//const int d1_hw_switch_pin_1 = 0; //d3 // nodemcu
+const int d1_hw_switch_pin_1 = 12; //d6 //lab 
+const int d2_hw_switch_pin_1 = 13; // d7
+
 ////////////////////////////////////////////////////////
 const int vir_equipment_name_pin_1 = 0;
 
@@ -502,7 +508,7 @@ void amp_mes_func()
     float k_watts_val = (watts_val / 1000);
     float k_watts_hr_val = (watts_val * 0.000277778 * 3);
     k_watt_hr_value = k_watts_hr_val + k_watt_hr_value;
-    Blynk.virtualWrite(vir_kwhr_pin_1, k_watt_hr_value); //
+    Blynk.virtualWrite(vir_kwhr_pin_1, k_watt_hr_value); 
   }
 }
 
@@ -523,7 +529,7 @@ void setup() {
   WiFi.onEvent(WiFiEvent);
   con_manager.setInterval(10000L, con_manager_func);
 
-  rtc_time_req_timer.setInterval(10000L, requestTime_func); // setting the rtc timer with regular interval
+  rtc_time_req_timer.setInterval(60000L, requestTime_func); // setting the rtc timer with regular interval
 
   upd_equipment_detail_timer.setInterval(5000, upd_equipment_detail_func); // setting the equipment detail update timer with regular interval
 
@@ -540,8 +546,6 @@ void setup() {
 
   pinMode(d1_op_pin_1, OUTPUT); // declaring the pin as output
   pinMode(d2_op_pin_1, OUTPUT); // declaring the pin as output
-
-
 
   d1_hw_switch_1_state = digitalRead(d1_hw_switch_pin_1); // getting the state of hardware device 1 switch
   d2_hw_switch_1_state = digitalRead(d2_hw_switch_pin_1); // getting the state of hardware device 2 switch
