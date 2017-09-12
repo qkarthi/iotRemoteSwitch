@@ -62,14 +62,14 @@ BLYNK_WRITE(V51) // time input widget for scheduling 1
           scheduler_1_stop_seconds = (t.getStopHour() * 3600) + (t.getStopMinute() * 60) + additional_scheduling_intervals;
           if (((scheduler_1_start_seconds + additional_scheduling_intervals) >= nowseconds_var) & (nowseconds_var >= scheduler_1_start_seconds))
           {
-            if (device_selected_scheduler_1 = 1)
+            if (device_selected_scheduler_1 == 1)
             {
               d1_state = HIGH;
               d1_update_func(); //send values to devices for update
               Blynk.virtualWrite(vir_d1_man_button_pin_1, d1_state);
               Blynk.notify(String(configStore.mspace_1) + " powered on ");
             }
-            if (device_selected_scheduler_1 = 2)
+            if (device_selected_scheduler_1 == 2)
             {
               d2_state = HIGH;
               d2_update_func(); //send values to devices for update
@@ -79,7 +79,7 @@ BLYNK_WRITE(V51) // time input widget for scheduling 1
           }
           /////////////////////////////////////////
           if ( ((scheduler_1_stop_seconds + additional_scheduling_intervals) >= nowseconds_var) & (nowseconds_var >= scheduler_1_stop_seconds))
-          { if (device_selected_scheduler_1 = 1)
+          { if (device_selected_scheduler_1 == 1)
             {
               d1_state = LOW;
               d1_update_func(); //send values to devices for update
@@ -87,7 +87,7 @@ BLYNK_WRITE(V51) // time input widget for scheduling 1
 
               Blynk.notify(String(configStore.mspace_1) + " powered off ");
             }
-            if (device_selected_scheduler_1 = 2)
+            if (device_selected_scheduler_1 == 2)
             {
               d2_state = LOW;
               d2_update_func(); //send values to devices for update
@@ -121,14 +121,14 @@ BLYNK_WRITE(V52) // time input widget for scheduling 2
           scheduler_2_start_seconds = (t.getStartHour() * 3600) + (t.getStartMinute() * 60);
           scheduler_2_stop_seconds = (t.getStopHour() * 3600) + (t.getStopMinute() * 60) + additional_scheduling_intervals;
           if (((scheduler_2_start_seconds + additional_scheduling_intervals) >= nowseconds_var) & (nowseconds_var >= scheduler_2_start_seconds))
-          { if (device_selected_scheduler_2 = 1)
+          { if (device_selected_scheduler_2 == 1)
             {
               d1_state = HIGH;
               d1_update_func(); //send values to devices for update
               Blynk.virtualWrite(vir_d1_man_button_pin_1, d1_state);
 
               Blynk.notify(String(configStore.mspace_1) + " powered on ");
-            } if (device_selected_scheduler_2 = 2)
+            } if (device_selected_scheduler_2 == 2)
             {
               d2_state = HIGH;
               d2_update_func(); //send values to devices for update
@@ -138,13 +138,13 @@ BLYNK_WRITE(V52) // time input widget for scheduling 2
           }
           /////////////////////////////////////////
           if ( ((scheduler_2_stop_seconds + additional_scheduling_intervals) >= nowseconds_var) & (nowseconds_var >= scheduler_2_stop_seconds))
-          { if (device_selected_scheduler_2 = 1)
+          { if (device_selected_scheduler_2 == 1)
             {
               d1_state = LOW;
               d1_update_func(); //send values to devices for update
               Blynk.virtualWrite(vir_d1_man_button_pin_1, d1_state);
               Blynk.notify(String(configStore.mspace_1) + " powered off ");
-            } if (device_selected_scheduler_2 = 2)
+            } if (device_selected_scheduler_2 == 2)
             {
               d2_state = LOW;
               d2_update_func(); //send values to devices for update
