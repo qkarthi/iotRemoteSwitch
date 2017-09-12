@@ -1,66 +1,8 @@
-
-
-void d1_update() {
-  digitalWrite(d1_op_pin_1, d1_state);
-  if (d1_state == HIGH)
-  {
-    d1_led.on();
-  } else
-  {
-    d1_led.off();
-  }
-}
-
-
-void d2_update() {
-  digitalWrite(d2_op_pin_1, d2_state);
-  if (d2_state == HIGH)
-  {
-    d2_led.on();
-  } else
-  {
-    d2_led.off();
-  }
-}
-
-//////////////////////////////////////////////////////
-void requestTime_func() {
-  Blynk.sendInternal("rtc", "sync"); // used to sync rtc
-}
-
+///////////////////////////////////////////
 BLYNK_CONNECTED() {
   Blynk.syncAll();   // used to sync all pins when the device is connected to server
 }
-//////////////////////////////////////////////////////
-BLYNK_WRITE(V11)///////////////////
-{
-  d1_state  = param.asInt();
-  d1_update();
-}
-BLYNK_WRITE(V8)
-{
-  k_watt_hr_value = param.asFloat();
-}
-BLYNK_WRITE(V12)///////////////////
-{
-  d2_state  = param.asInt();
-  d2_update();
-}
-BLYNK_WRITE(V20)///////////////////
-{
-  int pinValue = param.asInt();
-  if (pinValue == 1)
-  {
-    d1_state  = LOW;
-    d2_state  = LOW;
-    Blynk.virtualWrite(vir_d1_man_button_pin_1, d1_state);
-    Blynk.virtualWrite(vir_d2_man_button_pin_1, d2_state);
-    d1_update();
-    d2_update();
-    //Blynk.virtualWrite(vir_master_power_off_man_button_pin_1, 0); // uncommnet for debug purpose
-  }
-}
-////////////////////////////////////////////////////////
+///////////////////////////////////////////
 void con_manager_func()
 {
    DEBUG_PRINT("ver_2");
@@ -82,7 +24,7 @@ void con_manager_func()
       //beep twice for 10 sec
     }
     else {
-      DEBUG_PRINT("blynk _ true ");
+     // DEBUG_PRINT("blynk _ true ");
     }
   }
   else
@@ -118,14 +60,62 @@ void con_manager_func()
 
   }
 }
+//////////////////////////////////////////
+void requestTime_func() {
+  Blynk.sendInternal("rtc", "sync"); // used to sync rtc
+}
+//////////////////////////////////////////
+void d1_update_func() {
+  digitalWrite(d1_op_pin_1, d1_state);
+  if (d1_state == HIGH)
+  {
+    d1_led.on();
+  } else
+  {
+    d1_led.off();
+  }
+}
 
-
-
-
-
-
-
-
+void d2_update_func() {
+  digitalWrite(d2_op_pin_1, d2_state);
+  if (d2_state == HIGH)
+  {
+    d2_led.on();
+  } else
+  {
+    d2_led.off();
+  }
+}
+/////////////////////////////////////////////////////
+BLYNK_WRITE(V11)//manual button for d1
+{
+  d1_state  = param.asInt();
+  d1_update_func();
+}
+BLYNK_WRITE(V12)//manual button for d2
+{
+  d2_state  = param.asInt();
+  d2_update_func();
+}
+BLYNK_WRITE(V20)//master button for power off all switch
+{
+  int pinValue = param.asInt();
+  if (pinValue == 1)
+  {
+    d1_state  = LOW;
+    d2_state  = LOW;
+    Blynk.virtualWrite(vir_d1_man_button_pin_1, d1_state);
+    Blynk.virtualWrite(vir_d2_man_button_pin_1, d2_state);
+    d1_update_func();
+    d2_update_func();
+  }
+}
+//////////////////////////////////////////////////////////
+BLYNK_WRITE(V8)// kwhr label
+{
+  k_watt_hr_value = param.asFloat();
+}
+////////////////////////////////////////////////////////
 BLYNK_WRITE(V51)
 {
   if (d1_scheduler_var_1 == HIGH) //scd_button selected
@@ -150,7 +140,7 @@ BLYNK_WRITE(V51)
             if (d1_state != HIGH)
             {
               d1_state = HIGH;
-              d1_update(); //send values to devices for update
+              d1_update_func(); //send values to devices for update
             }
             Blynk.virtualWrite(vir_d1_man_button_pin_1, d1_state);
           }
@@ -159,7 +149,7 @@ BLYNK_WRITE(V51)
             if (d1_state != LOW)
             {
               d1_state = LOW;
-              d1_update();  //send values to devices for update
+              d1_update_func();  //send values to devices for update
             }
             Blynk.virtualWrite(vir_d1_man_button_pin_1, d1_state);
           }
@@ -168,13 +158,7 @@ BLYNK_WRITE(V51)
     }
   }
 }
-
-
-
-
-
-
-
+/******************************************************************************/
 BLYNK_WRITE(V52)
 {
   if (d2_scheduler_var_1 == HIGH) //scd_button selected
@@ -197,13 +181,13 @@ BLYNK_WRITE(V52)
           if (((d2_startseconds + additional_scheduling_intervals) >= nowseconds_var) & (nowseconds_var >= d2_startseconds))
           {
             d2_state = HIGH;
-            d2_update(); //send values to devices for update
+            d2_update_func(); //send values to devices for update
             Blynk.virtualWrite(vir_d2_man_button_pin_1, d2_state);
           }
           if ( ((d2_stopseconds + additional_scheduling_intervals) >= nowseconds_var) & (nowseconds_var >= d2_stopseconds))
           {
             d2_state = LOW;
-            d2_update(); //send values to devices for update
+            d2_update_func(); //send values to devices for update
             Blynk.virtualWrite(vir_d2_man_button_pin_1, d2_state);
           }
         }
@@ -214,23 +198,23 @@ BLYNK_WRITE(V52)
 
 
 //////////////////////////////////////////////////////////////////////
-void d1_scheduled_func()
+void d1_scheduled_func() // time input widget for scheduling 1
 {
   Blynk.syncVirtual(V51);
 }
 
-void d2_scheduled_func()
+void d2_scheduled_func() // time input widget for scheduling 2
 {
   Blynk.syncVirtual(V52);
 }
 
 ////////////////////////////////////////////////////////////////////
 
-BLYNK_WRITE(V21)///////////////////
+BLYNK_WRITE(V21) // scheduler 1 button
 {
   d1_scheduler_var_1  = param.asInt();
 }
-BLYNK_WRITE(V22)///////////////////
+BLYNK_WRITE(V22) // scheduler 2  button
 {
   d2_scheduler_var_1  = param.asInt();
 }
@@ -299,7 +283,7 @@ void upd_d1_hw_switch_1_func()
     d1_hw_switch_1_state = !d1_hw_switch_1_state;
     d1_state = !d1_state;
     Blynk.virtualWrite(vir_d1_man_button_pin_1, d1_state);
-    d1_update();
+    d1_update_func();
   }
 }
 ///////////////////////////////
@@ -310,7 +294,7 @@ void upd_d2_hw_switch_1_func()
     d2_hw_switch_1_state = !d2_hw_switch_1_state;
     d2_state = !d2_state;
     Blynk.virtualWrite(vir_d2_man_button_pin_1, d2_state);
-    d2_update();
+    d2_update_func();
   }
 }
 void upd_equipment_detail_func()
