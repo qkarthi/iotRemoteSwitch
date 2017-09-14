@@ -1,4 +1,3 @@
-#define USE_CUSTOM_BOARD
 #define APP_DEBUG
 #define BLYNK_PRINT Serial
 #include <BlynkSimpleEsp8266.h>
@@ -29,7 +28,7 @@ const int d1_op_pin_1 = 16; //d0
 const int d2_op_pin_1 = 14; //d5
 
 //const int d1_hw_switch_pin_1 = 0; //d3 // nodemcu
-const int d1_hw_switch_pin_1 = 12; //d6 //lab 
+const int d1_hw_switch_pin_1 = 12; //d6 //lab
 const int d2_hw_switch_pin_1 = 13; // d7
 ////////////////////////////////////////////////////////
 const int vir_equipment_name_pin_1 = 0;
@@ -48,6 +47,8 @@ const int vir_amp_pin_1 = 4;
 //////////////////////////////////////////
 const int vir_watts_pin_1 = 5;
 const int vir_kwhr_pin_1 = 8;
+const int vir_kwhr_reset_pin_1 = 9;
+const int vir_kwhr_previous_pin_1 = 10;
 ///////////////////////////////////////////
 const int vir_master_power_off_man_button_pin_1 = 20;
 const int vir_d1_man_button_pin_1 = 11;
@@ -95,8 +96,9 @@ double sensor_result;
 double VRMS = 0;
 double AmpsRMS = 0;
 float k_watt_hr_value;
+int k_watt_hr_value_reset_maximum = 1;
 /////////////////////////////////////////////
-String term_string, term_char_one, term_char_rest, term_time_string;
+String term_string, term_char_one, term_char_rest, term_time_string, date_string;
 /////////////////////////////////////////////
 int d1_state = LOW;
 int d1_hw_switch_1_state = HIGH;

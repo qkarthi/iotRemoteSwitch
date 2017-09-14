@@ -1,11 +1,27 @@
 ////////////////////////////////////////////////////////////////////////////////////
 BLYNK_CONNECTED() {
   Blynk.syncAll();   // used to sync all pins when the device is connected to server
+  rtc.begin();
 }
 /////////////////////////////////////////////////////
 BLYNK_WRITE(V8) // kwhr label
 {
   k_watt_hr_value = param.asFloat();
+}
+BLYNK_WRITE(V9) // master off button for d1 and d2
+{
+  int pinValue = param.asInt();
+  if (pinValue == 1)
+  {
+    if (k_watt_hr_value > k_watt_hr_value_reset_maximum)
+    {
+      Blynk.virtualWrite(vir_kwhr_previous_pin_1, k_watt_hr_value);
+      date_string = "previous unit - reset on: " + String(day()) + "-" + String(month()) + "-" + String(year());
+      Blynk.setProperty(vir_kwhr_previous_pin_1, "label", date_string);
+      k_watt_hr_value = 0;
+      Blynk.virtualWrite(vir_kwhr_pin_1, 0);
+    }
+  }
 }
 ////////////////////////////////////////////////////
 BLYNK_WRITE(V11) // manual button for d1
@@ -272,7 +288,6 @@ void con_manager_func()
             //reset config
             config_reset();
           }
-
         }
       }
     }

@@ -41,7 +41,7 @@ const ConfigStore configDefault = {
   
   "invalid token",
   "blynk-cloud.com", 8442,
-  "smart_switch_2D","appliance 1","appliance 2","","","","","","",0
+  "Smart Switch","no name","no name","","","","","","",0
 };
 
 #include <EEPROM.h>
