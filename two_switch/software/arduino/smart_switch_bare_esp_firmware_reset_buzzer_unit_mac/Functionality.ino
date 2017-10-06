@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////////
 BLYNK_CONNECTED() {
   Blynk.syncAll();   // used to sync all pins when the device is connected to server
-  rtc.begin();
+  //rtc.begin();
 }
 /////////////////////////////////////////////////////
 BLYNK_WRITE(V8) // kwhr label
@@ -208,14 +208,31 @@ BLYNK_WRITE(V99) // terminal widget
     delay(3000);
     ESP.restart();
   }  else if ((String("t") == term_char_one) & (String("ime") == term_char_rest)) {
-    terminal.println(" ");
-    term_time_string = String(hour()) + ":" + String(minute()) + ":" + String(second());
-    terminal.println(term_time_string);
+     RtcDateTime now = Rtc.GetDateTime();
+    printDateTime(now);
+
+
+    
+    terminal.println("-");
+   // term_time_string = String(hour()) + ":" + String(minute()) + ":" + String(second());
+   //terminal.println(term_time_string);
   } else if ((String("b") == term_char_one) & (String("eep") == term_char_rest)) {
     terminal.println(" ");
     beep_var = 1;
     terminal.println("Beep sound will start within 10 seconds");
-  } else  if ((String("*") == term_char_one)) {
+  }else if ((String("d") == term_char_one) & (String("isco") == term_char_rest)) {
+    terminal.println(" ");
+    disco_var = 1;
+    terminal.println("disco will start within 10 seconds");
+  } else if ((String("s") == term_char_one) & (String("os") == term_char_rest)) {
+    terminal.println(" ");
+    sos_var = 1;
+    terminal.println("sos will start within 10 seconds");
+  }else if ((String("e") == term_char_one) & (String("rror_error") == term_char_rest)) {
+    terminal.println(" ");
+    beep_var = 1;
+    terminal.println("Beep sound will start within 10 seconds");
+  }else  if ((String("*") == term_char_one)) {
     Blynk.virtualWrite(vir_equipment_name_pin_1, term_char_rest);
     CopyString(term_char_rest, configStore.equip_name);
     config_save();
@@ -243,6 +260,23 @@ BLYNK_WRITE(V99) // terminal widget
 /////////////////////////////////////////////////////
 /////////////////////////////////////////////////////
 /////////////////////////////////////////////////////
+#define countof(a) (sizeof(a) / sizeof(a[0]))
+
+void printDateTime(const RtcDateTime& dt)
+{
+    char datestring[20];
+
+    snprintf_P(datestring, 
+            countof(datestring),
+            PSTR("%02u/%02u/%04u %02u:%02u:%02u"),
+            dt.Month(),
+            dt.Day(),
+            dt.Year(),
+            dt.Hour(),
+            dt.Minute(),
+            dt.Second() );
+    terminal.println(datestring);
+}
 /////////////////////////////////////////////////////
 void con_manager_func()
 {
@@ -298,9 +332,14 @@ void con_manager_func()
   }
 }
 //////////////////////////////////////////////////////
-void requestTime_func() {
+
+//##################
+void requestTime_func() 
+{
   Blynk.sendInternal("rtc", "sync"); // used to sync rtc
 }
+//##################
+
 void beep_func() {
   if (beep_var == 1)
   {

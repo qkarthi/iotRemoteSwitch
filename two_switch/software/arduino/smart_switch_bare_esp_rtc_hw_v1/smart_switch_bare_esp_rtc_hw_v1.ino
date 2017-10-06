@@ -3,14 +3,13 @@
 #define BLYNK_PRINT Serial
 #include <BlynkSimpleEsp8266.h>
 #include "BlynkProvisioning.h"
-#include <TimeLib.h>
-#include <WidgetRTC.h>
 //*****************************//
 #include <Wire.h>
 #include <RtcDS3231.h>
 RtcDS3231<TwoWire> Rtc(Wire);
+
 //////////////////////////////////////////////////////
-BlynkTimer  con_manager, acs_timer, rtc_time_req_timer, upd_equipment_detail_timer, beep_timer;
+BlynkTimer  con_manager, acs_timer, upd_equipment_detail_timer, beep_timer;
 BlynkTimer  d1_hw_switch_timer, d2_hw_switch_timer;
 BlynkTimer  scheduler_1_timer, scheduler_2_timer;
 
@@ -18,15 +17,6 @@ WidgetTerminal terminal(V99);
 
 WidgetLED d1_led(V61), d2_led(V62);
 
-WidgetRTC rtc;
-
-//////////////////////////////////////////////////////
-
-
-
-
-
-//////////////////////////////////////////////////////
 const int sensorIn = A0;
 
 // buzzer = 4 - d2
@@ -43,8 +33,7 @@ const int d1_hw_switch_pin_1 = 12; //d6 //lab
 const int d2_hw_switch_pin_1 = 13; // d7
 ////////////////////////////////////////////////////////
 const int vir_equipment_name_pin_1 = 0;
-
-const int vir_equipment_ip_address_pin_1 = 1;
+const int vir_equipment_name_pin_2 = 1;
 
 const int vir_rssi_pin_1 = 2;
 
@@ -61,6 +50,7 @@ const int vir_kwhr_pin_1 = 8;
 const int vir_kwhr_reset_pin_1 = 9;
 const int vir_kwhr_previous_pin_1 = 10;
 ///////////////////////////////////////////
+const int vir_master_power_on_man_button_pin_1 = 19;
 const int vir_master_power_off_man_button_pin_1 = 20;
 const int vir_d1_man_button_pin_1 = 11;
 const int vir_d2_man_button_pin_1 = 12;
@@ -87,23 +77,7 @@ int beep_var = 0;
 int disco_var = 0;
 int sos_var = 0;
 ///////////////////////////////////////////
-int scheduler_1_var_1;
-int scheduler_2_var_1;
-
-int device_selected_scheduler_1;
-int device_selected_scheduler_2;
-
 long additional_scheduling_intervals = 20;
-
-long scheduler_1_start_seconds;
-long scheduler_2_start_seconds;
-
-long scheduler_1_stop_seconds;
-long scheduler_2_stop_seconds;
-///////////////////////////////////////////
-long nowseconds_var;
-int dayadjustment_var;
-int day_i;
 ///////////////////////////////////////////
 int mVperAmp = 75;
 double sensor_result;
@@ -112,13 +86,16 @@ double AmpsRMS = 0;
 float k_watt_hr_value;
 int k_watt_hr_value_reset_maximum = 1;
 /////////////////////////////////////////////
-String term_string, term_char_one, term_char_rest, term_time_string, date_string;
+String term_string, term_char_one, term_char_rest, term_time_string, date_string,scheduler_str;
 /////////////////////////////////////////////
 int d1_state = LOW;
 int d1_hw_switch_1_state = HIGH;
 
 int d2_state = LOW;
 int d2_hw_switch_1_state = HIGH;
+
+int scheduler_1_done=false;
+int scheduler_2_done=false;
 /////////////////////////////////////////////
 void setup() {
   Serial.begin(115200); // declering the serial monitor with baudrate
@@ -127,8 +104,6 @@ void setup() {
 
   WiFi.onEvent(WiFiEvent);
   con_manager.setInterval(120000L, con_manager_func);
-
- //##### rtc_time_req_timer.setInterval(60000L, requestTime_func); // setting the rtc timer with regular interval
 
   upd_equipment_detail_timer.setInterval(5000, upd_equipment_detail_func); // setting the equipment detail update timer with regular interval
 
@@ -139,8 +114,8 @@ void setup() {
   d1_hw_switch_timer.setInterval(500, upd_d1_hw_switch_1_func);// setting the hardware switch timer with regular interval
   d2_hw_switch_timer.setInterval(500, upd_d2_hw_switch_1_func);// setting the hardware switch timer with regular interval
 
-  scheduler_1_timer.setInterval(10000, scheduler_1_func); // setting the device 1 timer with regular interval
-  scheduler_2_timer.setInterval(10000, scheduler_2_func); // setting the device 2 timer with regular interval
+  scheduler_1_timer.setInterval(30000, scheduler_1_func); // setting the device 1 timer with regular interval
+  scheduler_2_timer.setInterval(30000, scheduler_2_func); // setting the device 1 timer with regular interval
 
   pinMode(d1_hw_switch_pin_1, INPUT_PULLUP); // declaring the pin as input-pullup
   pinMode(d2_hw_switch_pin_1, INPUT_PULLUP); // declaring the pin as input-pullup
@@ -150,6 +125,7 @@ void setup() {
 
   d1_hw_switch_1_state = digitalRead(d1_hw_switch_pin_1); // getting the state of hardware device 1 switch
   d2_hw_switch_1_state = digitalRead(d2_hw_switch_pin_1); // getting the state of hardware device 2 switch
+
   Wire.begin(rtc_sda, rtc_scl);
   Rtc.Begin();
   Rtc.Enable32kHzPin(false);
@@ -162,7 +138,6 @@ void loop()
   con_manager.run();
 
   acs_timer.run();  // used to run current sensor time
- //#### rtc_time_req_timer.run();  //  used to run real time clock
   upd_equipment_detail_timer.run();  // used to update the wifi and device name
   beep_timer.run();
 
