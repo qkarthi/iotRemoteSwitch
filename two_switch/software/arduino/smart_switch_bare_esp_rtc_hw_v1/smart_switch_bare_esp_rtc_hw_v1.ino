@@ -12,6 +12,7 @@ RtcDS3231<TwoWire> Rtc(Wire);
 BlynkTimer  con_manager, acs_timer, upd_equipment_detail_timer, beep_timer;
 BlynkTimer  d1_hw_switch_timer, d2_hw_switch_timer;
 BlynkTimer  scheduler_1_timer, scheduler_2_timer;
+BlynkTimer  connectivity_fall_back_handler_timer;
 
 WidgetTerminal terminal(V99);
 
@@ -72,6 +73,7 @@ const int vir_device_selector_2 = 72;
 ///////////////////////////////////////////
 ///////////////////////////////////////////
 ///////////////////////////////////////////
+int state_wifi = 1 , state_cloud = 1;
 int wifi_auth_error_count = 0;
 int beep_var = 0;
 int disco_var = 0;
@@ -86,7 +88,7 @@ double AmpsRMS = 0;
 float k_watt_hr_value;
 int k_watt_hr_value_reset_maximum = 1;
 /////////////////////////////////////////////
-String term_string, term_char_one, term_char_rest, term_time_string, date_string,scheduler_str;
+String term_string, term_char_one, term_char_rest, term_time_string, date_string, scheduler_str;
 /////////////////////////////////////////////
 int d1_state = LOW;
 int d1_hw_switch_1_state = HIGH;
@@ -94,8 +96,8 @@ int d1_hw_switch_1_state = HIGH;
 int d2_state = LOW;
 int d2_hw_switch_1_state = HIGH;
 
-int scheduler_1_done=false;
-int scheduler_2_done=false;
+int scheduler_1_done = false;
+int scheduler_2_done = false;
 /////////////////////////////////////////////
 void setup() {
   Serial.begin(115200); // declering the serial monitor with baudrate
@@ -103,7 +105,9 @@ void setup() {
   BlynkProvisioning.begin(); //blynk provision
 
   WiFi.onEvent(WiFiEvent);
-  con_manager.setInterval(120000L, con_manager_func);
+  con_manager.setInterval(60000L, con_manager_func);
+
+  connectivity_fall_back_handler_timer.setInterval(30000, connectivity_fall_back_func); // setting the equipment detail update timer with regular interval
 
   upd_equipment_detail_timer.setInterval(5000, upd_equipment_detail_func); // setting the equipment detail update timer with regular interval
 
@@ -134,13 +138,20 @@ void setup() {
 
 void loop()
 {
-  BlynkProvisioning.run(); //used to run provision
-  con_manager.run();
-
+  if (((state_wifi == true )&(state_cloud == true))|(millis()<10000)|(!configStore.flagConfig))
+  {
+     DEBUG_PRINT("provision");
+    BlynkProvisioning.run(); //used to run provision
+    con_manager.run();
+  }
+  else {
+    connectivity_fall_back_handler_timer.run();
+  }
   acs_timer.run();  // used to run current sensor time
   upd_equipment_detail_timer.run();  // used to update the wifi and device name
   beep_timer.run();
 
-  d1_hw_switch_timer.run(); scheduler_1_timer.run();  //device 1's hardware switch timer and schedule timer
+  d1_hw_switch_timer.run();  scheduler_1_timer.run();  //device 1's hardware switch timer and schedule timer
   d2_hw_switch_timer.run(); scheduler_2_timer.run();  //device 2's hardware switch timer and schedule timer
+
 }

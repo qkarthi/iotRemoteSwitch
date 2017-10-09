@@ -38,7 +38,7 @@ public:
     switch (BlynkState::get()) {
     case MODE_WAIT_CONFIG:       
     case MODE_CONFIGURING:       enterConfigMode();    break;
-    case MODE_CONNECTING_NET:    enterConnectNet();    break;
+    case MODE_CONNECTING_NET:    enterConnectNet();    break; /////////
     case MODE_CONNECTING_CLOUD:  enterConnectCloud();  break;
     case MODE_RUNNING:           Blynk.run();          break;
     case MODE_OTA_UPGRADE:       enterOTA();           break;

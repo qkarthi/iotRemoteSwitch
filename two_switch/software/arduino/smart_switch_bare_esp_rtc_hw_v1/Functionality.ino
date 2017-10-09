@@ -7,7 +7,7 @@ BLYNK_WRITE(V8) // kwhr label
 {
   k_watt_hr_value = param.asFloat();
 }
-BLYNK_WRITE(V9) // master off button for d1 and d2
+BLYNK_WRITE(V9) // reset kwhr button
 {
   int pinValue = param.asInt();
   if (pinValue == 1)
@@ -33,6 +33,20 @@ BLYNK_WRITE(V12) // manual button for d2
 {
   d2_state  = param.asInt();
   d2_update_func();
+}
+BLYNK_WRITE(V19) // master on button for d1 and d2
+{
+  int pinValue = param.asInt();
+  if (pinValue == 1)
+  {
+    d1_state  = HIGH;
+    d2_state  = HIGH;
+    Blynk.virtualWrite(vir_d1_man_button_pin_1, d1_state);
+    Blynk.virtualWrite(vir_d2_man_button_pin_1, d2_state);
+    d1_update_func();
+    delay(500);
+    d2_update_func();
+  }
 }
 BLYNK_WRITE(V20) // master off button for d1 and d2
 {
@@ -60,7 +74,7 @@ BLYNK_WRITE(V22) // scheduler 2 activation button
 }
 ////////////////////////////////////////////////////////////////////////////////
 BLYNK_WRITE(V51) // time input widget for scheduling 1
-{ 
+{
   TimeInputParam t(param);
 
   configStore.scheduler_1_sun_flag = false;
@@ -107,7 +121,7 @@ BLYNK_WRITE(V51) // time input widget for scheduling 1
   config_save();
 }
 BLYNK_WRITE(V52) // time input widget for scheduling 2
-{ 
+{
   TimeInputParam t(param);
 
   configStore.scheduler_2_sun_flag = false;
@@ -248,10 +262,12 @@ void con_manager_func()
   //DEBUG_PRINT("ver_2");
   if (WiFi.status() == WL_CONNECTED)
   {
-    // DEBUG_PRINT("wifi _ true ");
+    state_wifi = true;
+    DEBUG_PRINT("wifi _ true ");
     if ((Blynk.connected()) == false)
     {
-      // DEBUG_PRINT("blynk _ false ");
+      state_cloud = false;
+      DEBUG_PRINT("cloud _ false ");
       digitalWrite(BOARD_BUZZER_PIN, HIGH);
       delay(500);
       digitalWrite(BOARD_BUZZER_PIN, LOW);
@@ -262,16 +278,26 @@ void con_manager_func()
       //beep twice for 10 sec
     }
     else {
-      //DEBUG_PRINT("blynk _ true ");
+      state_cloud = true;
+      DEBUG_PRINT("cloud _ true ");
     }
   }
   else
   {
+
     digitalWrite(BOARD_BUZZER_PIN, HIGH);
     delay(500);
     digitalWrite(BOARD_BUZZER_PIN, LOW);
+
     //beep once for 10 sec
-    // DEBUG_PRINT("wifi _ false ");
+    state_wifi = false;
+    DEBUG_PRINT("wifi _ false ");
+    if (BlynkState::is(MODE_RUNNING)||BlynkState::is(MODE_CONNECTING_CLOUD)) {
+      if (configStore.flagConfig) {
+        BlynkState::set(MODE_CONNECTING_NET);
+        DEBUG_PRINT("mode => connecting network ");
+      }
+    }
     // lets scan for available ssid
     int n = WiFi.scanNetworks();
     //if ssid found
@@ -333,6 +359,7 @@ void d2_update_func() {
 /////////////////////////////////////////////////////////////////////////
 void upd_d1_hw_switch_1_func()
 {
+  DEBUG_PRINT("hw_switch_1");
   if (digitalRead(d1_hw_switch_pin_1) != d1_hw_switch_1_state)
   {
     d1_hw_switch_1_state = !d1_hw_switch_1_state;
@@ -344,6 +371,7 @@ void upd_d1_hw_switch_1_func()
 ///////////////////////////////
 void upd_d2_hw_switch_1_func()
 {
+  DEBUG_PRINT("hw_switch_2");
   if (digitalRead(d2_hw_switch_pin_1) != d2_hw_switch_1_state)
   {
     d2_hw_switch_1_state = !d2_hw_switch_1_state;
@@ -458,6 +486,7 @@ void scheduler_1_validator_func(int operation)
 
 
 void scheduler_1_func() {
+  DEBUG_PRINT("scheduler_1");
   if (configStore.scheduler_1_activation_flag == true)
   {
     RtcDateTime current_rtc_val = Rtc.GetDateTime();
@@ -553,6 +582,7 @@ void scheduler_2_validator_func(int operation)
 
 
 void scheduler_2_func() {
+  DEBUG_PRINT("scheduler_2");
   if (configStore.scheduler_2_activation_flag == true)
   {
     RtcDateTime current_rtc_val = Rtc.GetDateTime();
@@ -574,7 +604,7 @@ void scheduler_2_executer_func(int state_of_operation)
   if  (state_of_operation)
   {
     scheduler_str = "scheduling Started";
-  
+
   }
   else {
     scheduler_str = "scheduling Finished";
@@ -595,3 +625,27 @@ void scheduler_2_executer_func(int state_of_operation)
     Blynk.notify(String(configStore.equip_name) + " - " + String(configStore.dev_2_name) + " - " + scheduler_str);
   }
 }
+
+/////////////////////////////////////////////////////////////////////////////////
+
+void connectivity_fall_back_func(){
+  WiFi.disconnect();
+  DEBUG_PRINT(String("Connecting to WiFi: ") + configStore.wifiSSID);
+  WiFi.begin(configStore.wifiSSID, configStore.wifiPass);
+  if (WiFi.status() == WL_CONNECTED) {
+     DEBUG_PRINT(String(" wifi ready"));
+    state_wifi=true;
+  Blynk.disconnect();
+  Blynk.config(configStore.cloudToken, configStore.cloudHost, configStore.cloudPort);
+  Blynk.connect(0);
+  if ((Blynk.connected()) == true)
+    { 
+      DEBUG_PRINT(String(" cloud ready"));
+       state_cloud==true;
+}
+}
+}
+
+
+
+

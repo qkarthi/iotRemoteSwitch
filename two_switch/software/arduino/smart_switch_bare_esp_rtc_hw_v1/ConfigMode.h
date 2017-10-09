@@ -156,7 +156,7 @@ void enterConnectNet() {
   unsigned long timeoutMs = millis() + WIFI_NET_CONNECT_TIMEOUT;
   while ((timeoutMs > millis()) && (WiFi.status() != WL_CONNECTED))
   {
-    delay(100);
+    delay(50);
     if (!BlynkState::is(MODE_CONNECTING_NET)) {
       WiFi.disconnect();
       return;
@@ -165,9 +165,10 @@ void enterConnectNet() {
   
   if (WiFi.status() == WL_CONNECTED) {
     BlynkState::set(MODE_CONNECTING_CLOUD);
-  } else {
-    BlynkState::set(MODE_ERROR);
-  }
+  } 
+  //else {
+  //BlynkState::set(MODE_ERROR);
+ //}
 }
 
 void enterConnectCloud() {
@@ -178,8 +179,7 @@ void enterConnectCloud() {
   Blynk.connect(0);
 
   unsigned long timeoutMs = millis() + WIFI_CLOUD_CONNECT_TIMEOUT;
-  while ((timeoutMs > millis()) &&
-        (Blynk.connected() == false))
+  while ((timeoutMs > millis()) && (Blynk.connected() == false))
   {
     Blynk.run();
     if (!BlynkState::is(MODE_CONNECTING_CLOUD)) {
@@ -197,10 +197,14 @@ void enterConnectCloud() {
       digitalWrite(BOARD_BUZZER_PIN, LOW);
       DEBUG_PRINT("Configuration stored to flash");
     }
-  } else {
+  } 
+  else  {
+     if (!configStore.flagConfig){
     BlynkState::set(MODE_ERROR);
   }
 }
+}
+
 
 void enterSwitchToSTA() {
   BlynkState::set(MODE_SWITCH_TO_STA);
@@ -218,7 +222,7 @@ void enterError() {
   BlynkState::set(MODE_ERROR);
   
   unsigned long timeoutMs = millis() + 10000;
-  while (timeoutMs > millis())
+  while (timeoutMs > millis() || g_buttonPressed)
   {
     delay(10);
     if (!BlynkState::is(MODE_ERROR)) {
@@ -227,6 +231,7 @@ void enterError() {
   }
   DEBUG_PRINT("Restarting after error.");
   delay(10);
-  restartMCU();
+ restartMCU();
 }
+
 

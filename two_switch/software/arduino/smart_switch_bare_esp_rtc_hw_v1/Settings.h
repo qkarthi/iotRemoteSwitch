@@ -30,12 +30,12 @@
 */
 
 #define BUTTON_HOLD_TIME_INDICATION   3000
-#define BUTTON_HOLD_TIME_ACTION       10000
+#define BUTTON_HOLD_TIME_ACTION       5000
 
 #define BOARD_PWM_MAX                 1023
 
-#define WIFI_NET_CONNECT_TIMEOUT      30000
-#define WIFI_CLOUD_CONNECT_TIMEOUT    15000
+#define WIFI_NET_CONNECT_TIMEOUT      3000
+#define WIFI_CLOUD_CONNECT_TIMEOUT    2000
 #define WIFI_AP_CONFIG_PORT           80
 #define WIFI_AP_IP                    IPAddress(192, 168, 1, 50)
 #define WIFI_AP_Subnet                IPAddress(255, 255, 255, 0)
