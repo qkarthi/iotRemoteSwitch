@@ -40,7 +40,7 @@ void enterOTA() {
   switch (ESPhttpUpdate.update(overTheAirURL, BOARD_FIRMWARE_VERSION)) {
   case HTTP_UPDATE_FAILED:
     DEBUG_PRINT(String("Firmware update failed (error ") + ESPhttpUpdate.getLastError() + "): " + ESPhttpUpdate.getLastErrorString());
-    BlynkState::set(MODE_ERROR);
+    restartMCU();
     break;
   case HTTP_UPDATE_NO_UPDATES:
     DEBUG_PRINT("No firmware updates available.");

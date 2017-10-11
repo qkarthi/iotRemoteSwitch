@@ -138,15 +138,13 @@ void setup() {
 
 void loop()
 {
-  if (((state_wifi == true )&(state_cloud == true))|(millis()<10000)|(!configStore.flagConfig))
-  {
-     DEBUG_PRINT("provision");
+     // if (((state_wifi == true )&(state_cloud == true))|(millis()<10000)|(!configStore.flagConfig))
+     //DEBUG_PRINT("provision");
     BlynkProvisioning.run(); //used to run provision
     con_manager.run();
-  }
-  else {
-    connectivity_fall_back_handler_timer.run();
-  }
+
+     //connectivity_fall_back_handler_timer.run();
+ 
   acs_timer.run();  // used to run current sensor time
   upd_equipment_detail_timer.run();  // used to update the wifi and device name
   beep_timer.run();

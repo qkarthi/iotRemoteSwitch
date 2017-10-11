@@ -13,10 +13,10 @@
 /*
    IOTICS Configuration
 */
-
-#define PRODUCT_SHORTCODE            "smartswitch-iot"     //This will be a uniquename without any spaces.
+#define PRODUCT_SHORTCODE            "switcher/alpha"     //This will be a uniquename without any spaces.
 #define BOARD_ENV                    "development"          //Product environment should be development or production.
-#define OTA_URL                      "http://s3.ap-south-1.amazonaws.com/iotics-firmware"
+#define OTA_URL                      "http://iotics-c-firmware.s3.amazonaws.com"
+                                      //"http://iotics-c-firmware.s3.amazonaws.com"
 
 // Custom board configuration
 

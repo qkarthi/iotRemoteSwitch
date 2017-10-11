@@ -1,14 +1,10 @@
-#include <ESP8266WiFi.h>
 #define APP_DEBUG
+#include <ESP8266WiFi.h>
 #define BLYNK_PRINT Serial
 #include <BlynkSimpleEsp8266.h>
 #include "BlynkProvisioning.h"
 #include <TimeLib.h>
 #include <WidgetRTC.h>
-//*****************************//
-#include <Wire.h>
-#include <RtcDS3231.h>
-RtcDS3231<TwoWire> Rtc(Wire);
 //////////////////////////////////////////////////////
 BlynkTimer  con_manager, acs_timer, rtc_time_req_timer, upd_equipment_detail_timer, beep_timer;
 BlynkTimer  d1_hw_switch_timer, d2_hw_switch_timer;
@@ -32,10 +28,7 @@ const int sensorIn = A0;
 // buzzer = 4 - d2
 // reset = 5 - d1
 
-const int rtc_sda = 0; //d3
-const int rtc_scl = 2; //d4
-
-const int d1_op_pin_1 = 16; //d0
+const int d1_op_pin_1 = 16; //0
 const int d2_op_pin_1 = 14; //d5
 
 //const int d1_hw_switch_pin_1 = 0; //d3 // nodemcu
@@ -61,6 +54,7 @@ const int vir_kwhr_pin_1 = 8;
 const int vir_kwhr_reset_pin_1 = 9;
 const int vir_kwhr_previous_pin_1 = 10;
 ///////////////////////////////////////////
+const int vir_master_power_on_man_button_pin_1 = 19;
 const int vir_master_power_off_man_button_pin_1 = 20;
 const int vir_d1_man_button_pin_1 = 11;
 const int vir_d2_man_button_pin_1 = 12;
@@ -128,7 +122,7 @@ void setup() {
   WiFi.onEvent(WiFiEvent);
   con_manager.setInterval(120000L, con_manager_func);
 
- //##### rtc_time_req_timer.setInterval(60000L, requestTime_func); // setting the rtc timer with regular interval
+  rtc_time_req_timer.setInterval(60000L, requestTime_func); // setting the rtc timer with regular interval
 
   upd_equipment_detail_timer.setInterval(5000, upd_equipment_detail_func); // setting the equipment detail update timer with regular interval
 
@@ -150,10 +144,6 @@ void setup() {
 
   d1_hw_switch_1_state = digitalRead(d1_hw_switch_pin_1); // getting the state of hardware device 1 switch
   d2_hw_switch_1_state = digitalRead(d2_hw_switch_pin_1); // getting the state of hardware device 2 switch
-  Wire.begin(rtc_sda, rtc_scl);
-  Rtc.Begin();
-  Rtc.Enable32kHzPin(false);
-  Rtc.SetSquareWavePin(DS3231SquareWavePin_ModeNone);
 }
 
 void loop()
@@ -162,7 +152,7 @@ void loop()
   con_manager.run();
 
   acs_timer.run();  // used to run current sensor time
- //#### rtc_time_req_timer.run();  //  used to run real time clock
+  rtc_time_req_timer.run();  //  used to run real time clock
   upd_equipment_detail_timer.run();  // used to update the wifi and device name
   beep_timer.run();
 

@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////////
 BLYNK_CONNECTED() {
   Blynk.syncAll();   // used to sync all pins when the device is connected to server
-  //rtc.begin();
+  rtc.begin();
 }
 /////////////////////////////////////////////////////
 BLYNK_WRITE(V8) // kwhr label
@@ -33,6 +33,20 @@ BLYNK_WRITE(V12) // manual button for d2
 {
   d2_state  = param.asInt();
   d2_update_func();
+}
+BLYNK_WRITE(V19) // master on button for d1 and d2
+{
+  int pinValue = param.asInt();
+  if (pinValue == 1)
+  {
+    d1_state  = HIGH;
+    d2_state  = HIGH;
+    Blynk.virtualWrite(vir_d1_man_button_pin_1, d1_state);
+    Blynk.virtualWrite(vir_d2_man_button_pin_1, d2_state);
+    d1_update_func();
+    delay(500);
+    d2_update_func();
+  }
 }
 BLYNK_WRITE(V20) // master off button for d1 and d2
 {
@@ -208,19 +222,14 @@ BLYNK_WRITE(V99) // terminal widget
     delay(3000);
     ESP.restart();
   }  else if ((String("t") == term_char_one) & (String("ime") == term_char_rest)) {
-     RtcDateTime now = Rtc.GetDateTime();
-    printDateTime(now);
-
-
-    
     terminal.println("-");
-   // term_time_string = String(hour()) + ":" + String(minute()) + ":" + String(second());
-   //terminal.println(term_time_string);
+    term_time_string = String(hour()) + ":" + String(minute()) + ":" + String(second());
+    terminal.println(term_time_string);
   } else if ((String("b") == term_char_one) & (String("eep") == term_char_rest)) {
     terminal.println(" ");
     beep_var = 1;
     terminal.println("Beep sound will start within 10 seconds");
-  }else if ((String("d") == term_char_one) & (String("isco") == term_char_rest)) {
+  } else if ((String("d") == term_char_one) & (String("isco") == term_char_rest)) {
     terminal.println(" ");
     disco_var = 1;
     terminal.println("disco will start within 10 seconds");
@@ -228,11 +237,11 @@ BLYNK_WRITE(V99) // terminal widget
     terminal.println(" ");
     sos_var = 1;
     terminal.println("sos will start within 10 seconds");
-  }else if ((String("e") == term_char_one) & (String("rror_error") == term_char_rest)) {
+  } else if ((String("e") == term_char_one) & (String("rror_error") == term_char_rest)) {
     terminal.println(" ");
     beep_var = 1;
     terminal.println("Beep sound will start within 10 seconds");
-  }else  if ((String("*") == term_char_one)) {
+  } else  if ((String("*") == term_char_one)) {
     Blynk.virtualWrite(vir_equipment_name_pin_1, term_char_rest);
     CopyString(term_char_rest, configStore.equip_name);
     config_save();
@@ -260,33 +269,16 @@ BLYNK_WRITE(V99) // terminal widget
 /////////////////////////////////////////////////////
 /////////////////////////////////////////////////////
 /////////////////////////////////////////////////////
-#define countof(a) (sizeof(a) / sizeof(a[0]))
-
-void printDateTime(const RtcDateTime& dt)
-{
-    char datestring[20];
-
-    snprintf_P(datestring, 
-            countof(datestring),
-            PSTR("%02u/%02u/%04u %02u:%02u:%02u"),
-            dt.Month(),
-            dt.Day(),
-            dt.Year(),
-            dt.Hour(),
-            dt.Minute(),
-            dt.Second() );
-    terminal.println(datestring);
-}
 /////////////////////////////////////////////////////
 void con_manager_func()
 {
   //DEBUG_PRINT("ver_2");
   if (WiFi.status() == WL_CONNECTED)
   {
-    // DEBUG_PRINT("wifi _ true ");
+    DEBUG_PRINT("wifi _ true ");
     if ((Blynk.connected()) == false)
     {
-      // DEBUG_PRINT("blynk _ false ");
+      DEBUG_PRINT("cloud _ false ");
       digitalWrite(BOARD_BUZZER_PIN, HIGH);
       delay(500);
       digitalWrite(BOARD_BUZZER_PIN, LOW);
@@ -297,16 +289,24 @@ void con_manager_func()
       //beep twice for 10 sec
     }
     else {
-      //DEBUG_PRINT("blynk _ true ");
+      DEBUG_PRINT("cloud _ true ");
     }
   }
   else
   {
+
     digitalWrite(BOARD_BUZZER_PIN, HIGH);
     delay(500);
     digitalWrite(BOARD_BUZZER_PIN, LOW);
+
     //beep once for 10 sec
-    // DEBUG_PRINT("wifi _ false ");
+    DEBUG_PRINT("wifi _ false ");
+    if (BlynkState::is(MODE_RUNNING)||BlynkState::is(MODE_CONNECTING_CLOUD)) {
+      if (configStore.flagConfig) {
+        BlynkState::set(MODE_CONNECTING_NET);
+        DEBUG_PRINT("mode => connecting network ");
+      }
+    }
     // lets scan for available ssid
     int n = WiFi.scanNetworks();
     //if ssid found
@@ -334,7 +334,7 @@ void con_manager_func()
 //////////////////////////////////////////////////////
 
 //##################
-void requestTime_func() 
+void requestTime_func()
 {
   Blynk.sendInternal("rtc", "sync"); // used to sync rtc
 }
