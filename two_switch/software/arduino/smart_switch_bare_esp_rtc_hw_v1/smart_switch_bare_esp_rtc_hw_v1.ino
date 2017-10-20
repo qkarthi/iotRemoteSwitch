@@ -1,5 +1,5 @@
 #include <ESP8266WiFi.h>
-#define APP_DEBUG
+//#define APP_DEBUG
 #define BLYNK_PRINT Serial
 #include <BlynkSimpleEsp8266.h>
 #include "BlynkProvisioning.h"
