@@ -6,7 +6,7 @@
 
 #define BOARD_NAME                    "Switcher"         // Name of your product. Should match App Export request info.
 #define BOARD_VENDOR                  "iotics"               // Name of your company. Should match App Export request info.
-
+#define BOARD_TEMPLATE_ID             "TMPL87437"
 #define PRODUCT_WIFI_SSID             "Switcher"    // mac id also displayed -  Name of the device, to be displayed during configuration. Should match export request info.
 #define BOARD_CONFIG_AP_URL           "Switcher.set"      // Config page will be available in a browser at 'http://our-product.cc/'
 
