@@ -486,3 +486,21 @@ void firmware_update() {
   BlynkState::set(MODE_OTA_UPGRADE);
   delay(500);
 }
+
+void checkBlynk() {
+  if (WiFi.status() == WL_CONNECTED)  
+  {
+    unsigned long startConnecting = millis();    
+    while(!Blynk.connected()){
+      Blynk.connect();  
+      if(millis() > startConnecting + myServerTimeout){
+        DEBUG_PRINT("Unable to connect to server. ");
+        break;
+      }
+    }
+  }
+  if (WiFi.status() != 3) {
+    DEBUG_PRINT("\tNo WiFi. ");
+  } 
+  DEBUG_PRINT(String("Checking again in")+"=>"+ blynkInterval / 1000);
+}

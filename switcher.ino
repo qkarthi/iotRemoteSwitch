@@ -13,6 +13,12 @@
 BlynkTimer  con_manager, acs_timer, rtc_time_req_timer, upd_equipment_detail_timer, beep_timer;
 BlynkTimer  d1_hw_switch_timer, d2_hw_switch_timer;
 BlynkTimer  scheduler_1_timer, scheduler_2_timer;
+BlynkTimer  check_blynkconnect;
+
+unsigned int myServerTimeout  =  3500;  //  3.5s server connection timeout (SCT)
+unsigned int myWiFiTimeout    =  3200;  //  3.2s WiFi connection timeout   (WCT)
+unsigned int blynkInterval    = 25000;  // 25.0s check server frequency    (CSF)
+
 
 WidgetRTC rtc;
 
@@ -135,6 +141,9 @@ void setup() {
   con_manager.setInterval(120000L, con_manager_func);
 
   rtc_time_req_timer.setInterval(60000L, requestTime_func); // setting the rtc timer with regular interval
+  
+  check_blynkconnect.setInterval(blynkInterval, checkBlynk);   // check connection to server per blynkInterval
+
 
   upd_equipment_detail_timer.setInterval(5000, upd_equipment_detail_func); // setting the equipment detail update timer with regular interval
 
@@ -147,6 +156,7 @@ void setup() {
 
   scheduler_1_timer.setInterval(10000, scheduler_1_func); // setting the device 1 timer with regular interval
   scheduler_2_timer.setInterval(10000, scheduler_2_func); // setting the device 2 timer with regular interval
+  
 
   pinMode(d1_hw_switch_pin_1, INPUT_PULLUP); // declaring the pin as input-pullup
   pinMode(d2_hw_switch_pin_1, INPUT_PULLUP); // declaring the pin as input-pullup
@@ -156,11 +166,15 @@ void setup() {
 
   d1_hw_switch_1_state = digitalRead(d1_hw_switch_pin_1); // getting the state of hardware device 1 switch
   d2_hw_switch_1_state = digitalRead(d2_hw_switch_pin_1); // getting the state of hardware device 2 switch
+  checkBlynk();
 }
 
 void loop()
 {
+  if (Blynk.connected()) {
   BlynkProvisioning.run(); //used to run provision
+  }
+  check_blynkconnect.run();
   con_manager.run();
 
   //acs_timer.run();  // used to run current sensor time
