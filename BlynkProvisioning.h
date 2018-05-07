@@ -6,6 +6,7 @@
 #include "ResetButton.h"
 #include "ConfigMode.h"
 #include "OTA.h"
+#include "DumpMode.h"
 inline
 void BlynkState::set(State m) {
   if (state != m) {
@@ -32,11 +33,12 @@ public:
     if (configStore.flagConfig) {
       BlynkState::set(MODE_CONNECTING_NET);
     } else {
-      BlynkState::set(MODE_WAIT_CONFIG);
+      BlynkState::set(MODE_DUMB);
     }
   }
   void run() {
     switch (BlynkState::get()) {
+    case MODE_DUMB:              enterDumbMode();      break;
     case MODE_WAIT_CONFIG:       
     case MODE_CONFIGURING:       enterConfigMode();    break;
     case MODE_CONNECTING_NET:    enterConnectNet();    break;

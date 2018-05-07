@@ -146,8 +146,10 @@ void enterConnectNet() {
   DEBUG_PRINT(String("Connecting to WiFi: ") + configStore.wifiSSID);
   
   WiFi.mode(WIFI_STA);
-  if (!WiFi.begin(configStore.wifiSSID, configStore.wifiPass))
+  if (!WiFi.begin(configStore.wifiSSID, configStore.wifiPass)){
+    BlynkState::set(MODE_DUMB);
     return;
+  }
   
   unsigned long timeoutMs = millis() + WIFI_NET_CONNECT_TIMEOUT;
   while ((timeoutMs > millis()) && (WiFi.status() != WL_CONNECTED))
@@ -162,9 +164,9 @@ void enterConnectNet() {
   if (WiFi.status() == WL_CONNECTED) {
     BlynkState::set(MODE_CONNECTING_CLOUD);
   } 
-  //else {
-  //BlynkState::set(MODE_ERROR);
- //}
+  else {
+    BlynkState::set(MODE_DUMB);
+ }
 }
 
 void enterConnectCloud() {
@@ -196,7 +198,7 @@ void enterConnectCloud() {
   } 
   else  {
      if (!configStore.flagConfig){
-    BlynkState::set(MODE_ERROR);
+    BlynkState::set(MODE_DUMB);
   }
 }
 }

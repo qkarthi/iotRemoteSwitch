@@ -1,4 +1,5 @@
 enum State {
+  MODE_DUMB,
   MODE_WAIT_CONFIG,
   MODE_CONFIGURING,
   MODE_CONNECTING_NET,
@@ -14,6 +15,7 @@ enum State {
 
 #if defined(APP_DEBUG)
 const char* StateStr[MODE_MAX_VALUE] = {
+  "DUMB",
   "WAIT_CONFIG",
   "CONFIGURING",
   "CONNECTING_NET",

@@ -501,6 +501,11 @@ void checkBlynk() {
   }
   if (WiFi.status() != 3) {
     DEBUG_PRINT("\tNo WiFi. ");
+    DEBUG_PRINT("\tTrying to reconnect. ");
+    Blynk.disconnect();
+    Blynk.config(configStore.cloudToken, configStore.cloudHost, configStore.cloudPort);
+    Blynk.connect(0);
+    //BlynkState::set(MODE_CONNECTING_NET);
   } 
   DEBUG_PRINT(String("Checking again in")+"=>"+ blynkInterval / 1000);
 }
