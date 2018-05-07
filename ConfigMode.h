@@ -147,7 +147,7 @@ void enterConnectNet() {
   
   WiFi.mode(WIFI_STA);
   if (!WiFi.begin(configStore.wifiSSID, configStore.wifiPass)){
-    BlynkState::set(MODE_DUMB);
+    //BlynkState::set(MODE_DUMB);
     return;
   }
   

@@ -166,6 +166,9 @@ void setup() {
 
   d1_hw_switch_1_state = digitalRead(d1_hw_switch_pin_1); // getting the state of hardware device 1 switch
   d2_hw_switch_1_state = digitalRead(d2_hw_switch_pin_1); // getting the state of hardware device 2 switch
+
+
+  
   //checkBlynk();
 }
 

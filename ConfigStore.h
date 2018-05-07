@@ -17,14 +17,11 @@ struct ConfigStore {
   char      mspace_1[24]; //dev1
   char      mspace_2[24]; //dev2
  
-  char      mspace_3[24]; //on
-  char      mspace_4[24]; //off
+  
+  
+  uint8_t   Dev_1_state:1;
+  uint8_t   Dev_2_state:1;
 
-  char      mspace_5[24]; //on
-  char      mspace_6[24]; //off
-
-  char      mspace_7[24];
-  char      mspace_8[24];
   
   uint16_t  checksum;
 } __attribute__((packed));
@@ -41,7 +38,9 @@ const ConfigStore configDefault = {
   
   "invalid token",
   "blynk-cloud.com", 8442,
-  BOARD_NAME,"no name","no name","","","","","","",0
+  BOARD_NAME,"no name","no name",
+  0,0,
+  0
 };
 
 #include <EEPROM.h>

@@ -1,13 +1,14 @@
 ////////////////////////////////////////////////////////////////////////////////////
 BLYNK_CONNECTED() {
   rtc.begin();
-  Blynk.syncAll();   // used to sync all pins when the device is connected to server
+  //Blynk.syncAll();   // used to sync all pins when the device is connected to server
 
 }
 /////////////////////////////////////////////////////
 BLYNK_WRITE(V8) // kwhr label
 {
   k_watt_hr_value = param.asFloat();
+  
 }
 BLYNK_WRITE(V9) // master off button for d1 and d2
 {
@@ -29,11 +30,14 @@ BLYNK_WRITE(V11) // manual button for d1
 {
   d1_state  = param.asInt();
   d1_update_func();
+  Serial.println("button 1 pressed blynk write function");
 }
 BLYNK_WRITE(V12) // manual button for d2
 {
   d2_state  = param.asInt();
   d2_update_func();
+  
+  Serial.println("button 2 pressed blynk write function");
 }
 BLYNK_WRITE(V19) // master on button for d1 and d2
 {
@@ -488,6 +492,8 @@ void firmware_update() {
 }
 
 void checkBlynk() {
+  
+  Serial.println("chk blynk function");
   if (WiFi.status() == WL_CONNECTED)  
   {
     unsigned long startConnecting = millis();    
