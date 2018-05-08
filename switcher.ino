@@ -74,9 +74,6 @@ void setup() {
  
   client_id = String(WiFi.macAddress());
   
-
- 
-  
   delay(500);
   
   pinMode(d1_hw_switch_pin_1, INPUT_PULLUP); // declaring the pin as input-pullup
@@ -100,9 +97,15 @@ void setup() {
   digitalWrite(d1_op_pin_1, d1_state);
   digitalWrite(d2_op_pin_1, d2_state);
   
-  Serial.println(configStore.Dev_1_state);
-  Serial.println(configStore.Dev_2_state);
-
+  if(d1_hw_switch_1_state!=configStore.Dev_1_swi){
+     d1_state = !d1_state;
+    d1_update_func(1,d1_hw_switch_1_state);
+  }
+  
+  if(d2_hw_switch_1_state!=configStore.Dev_2_swi){
+    d2_state = !d2_state;
+    d2_update_func(1,d2_hw_switch_1_state);
+  }
   
   d1_hw_switch_timer.setInterval(500, upd_d1_hw_switch_1_func);// setting the hardware switch timer with regular interval
   d2_hw_switch_timer.setInterval(500, upd_d2_hw_switch_1_func);// setting the hardware switch timer with regular interval
@@ -111,6 +114,7 @@ void setup() {
 }
 
 void loop() {
+  
   BlynkProvisioning.run();
   
   d1_hw_switch_timer.run();

@@ -21,6 +21,10 @@ struct ConfigStore {
   uint8_t   Dev_1_state:1;
   uint8_t   Dev_2_state:1;
 
+  
+  uint8_t   Dev_1_swi:1;
+  uint8_t   Dev_2_swi:1;
+
   uint16_t  checksum;
 } __attribute__((packed));
 
@@ -38,6 +42,7 @@ const ConfigStore configDefault = {
   "blynk-cloud.com", 80,
   "switcher",
   "appliance1","appliance2",
+  0,0,
   0,0,
   0
 };
