@@ -120,11 +120,11 @@ int k_watt_hr_value_reset_maximum = 1;
 /////////////////////////////////////////////
 String term_string, term_char_one, term_char_rest, term_time_string, date_string;
 /////////////////////////////////////////////
-int d1_state = LOW;
-int d1_hw_switch_1_state = HIGH;
+int d1_state = configStore.Dev_1_state;
+int d1_hw_switch_1_state = !digitalRead(d1HardwarePin);
 
-int d2_state = LOW;
-int d2_hw_switch_1_state = HIGH;
+int d2_state = configStore.Dev_2_state;
+int d2_hw_switch_1_state = !digitalRead(d2HardwarePin);
 /////////////////////////////////////////////
 // variables in alexa part
 bool alexaDevAddedFlag = false; // validation variable wheather the alexa  broadcast happens or not
@@ -135,19 +135,10 @@ String  client_id;
 void setup() {
   Serial.begin(115200); // declering the serial monitor with baudrate
   client_id = String(WiFi.macAddress());
-  BlynkProvisioning.begin(); //blynk provision
-
-  WiFi.onEvent(WiFiEvent);
-  con_manager.setInterval(120000L, con_manager_func);
-
-  rtc_time_req_timer.setInterval(60000L, requestTime_func); // setting the rtc timer with regular interval
-  
-  check_blynkconnect.setInterval(blynkInterval, checkBlynk);   // check connection to server per blynkInterval
 
 
-  upd_equipment_detail_timer.setInterval(5000, upd_equipment_detail_func); // setting the equipment detail update timer with regular interval
 
-  acs_timer.setInterval(3000, amp_mes_func); // setting the current sensor timer with regular interval
+
 
   beep_timer.setInterval(10000, beep_func); // setting the beep timer with regular interval
 
@@ -156,7 +147,7 @@ void setup() {
 
   scheduler_1_timer.setInterval(10000, scheduler_1_func); // setting the device 1 timer with regular interval
   scheduler_2_timer.setInterval(10000, scheduler_2_func); // setting the device 2 timer with regular interval
-  
+
 
   pinMode(d1_hw_switch_pin_1, INPUT_PULLUP); // declaring the pin as input-pullup
   pinMode(d2_hw_switch_pin_1, INPUT_PULLUP); // declaring the pin as input-pullup
@@ -164,11 +155,22 @@ void setup() {
   pinMode(d1_op_pin_1, OUTPUT); // declaring the pin as output
   pinMode(d2_op_pin_1, OUTPUT); // declaring the pin as output
 
-  d1_hw_switch_1_state = digitalRead(d1_hw_switch_pin_1); // getting the state of hardware device 1 switch
-  d2_hw_switch_1_state = digitalRead(d2_hw_switch_pin_1); // getting the state of hardware device 2 switch
+  d1_hw_switch_1_state = !digitalRead(d1_hw_switch_pin_1); // getting the state of hardware device 1 switch
+  d2_hw_switch_1_state = !digitalRead(d2_hw_switch_pin_1); // getting the state of hardware device 2 switch
+
+  digitalWrite(d1_op_pin_1, d1_state);
+  digitalWrite(d2_op_pin_1, d2_state);
 
 
-  
+  rtc_time_req_timer.setInterval(60000L, requestTime_func); // setting the rtc timer with regular interval
+
+  check_blynkconnect.setInterval(blynkInterval, checkBlynk);   // check connection to server per blynkInterval
+
+
+  upd_equipment_detail_timer.setInterval(5000, upd_equipment_detail_func); // setting the equipment detail update timer with regular interval
+
+  BlynkProvisioning.begin(); //blynk provision
+
   //checkBlynk();
 }
 

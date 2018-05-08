@@ -2,7 +2,30 @@
 BLYNK_CONNECTED() {
   rtc.begin();
   //Blynk.syncAll();   // used to sync all pins when the device is connected to server
+ if (configStore.Dev_1_state)
+  {
+    Blynk.virtualWrite(vir_d1_man_button_pin_1, HIGH);
+    d1_led.on();
+  }
+  else  {
+    Blynk.virtualWrite(vir_d1_man_button_pin_1, LOW);
+    d1_led.off();
+  }
 
+  if (configStore.Dev_1_state)
+  {
+    Blynk.virtualWrite(vir_d2_man_button_pin_1, HIGH);
+    d2_led.on();
+  }
+  else  {
+    Blynk.virtualWrite(vir_d2_man_button_pin_1, LOW);
+    d2_led.off();
+  }
+
+  Blynk.syncVirtual(V21);
+  Blynk.syncVirtual(V22);
+  Blynk.syncVirtual(V71);
+  Blynk.syncVirtual(V72);
 }
 /////////////////////////////////////////////////////
 BLYNK_WRITE(V8) // kwhr label
@@ -407,6 +430,7 @@ void upd_d1_hw_switch_1_func()
   {
     d1_hw_switch_1_state = !d1_hw_switch_1_state;
     d1_state = !d1_state;
+    deviceLastMem(1,d1_state);
     Blynk.virtualWrite(vir_d1_man_button_pin_1, d1_state);
     d1_update_func();
   }
@@ -418,6 +442,7 @@ void upd_d2_hw_switch_1_func()
   {
     d2_hw_switch_1_state = !d2_hw_switch_1_state;
     d2_state = !d2_state;
+    deviceLastMem(2,d2_state);
     Blynk.virtualWrite(vir_d2_man_button_pin_1, d2_state);
     d2_update_func();
   }
@@ -515,3 +540,16 @@ void checkBlynk() {
   } 
   DEBUG_PRINT(String("Checking again in")+"=>"+ blynkInterval / 1000);
 }
+
+
+
+void deviceLastMem(int dev_id, int Dstatus) {
+  if (dev_id == 1) {
+    configStore.Dev_1_state = Dstatus;
+  } else if (dev_id == 2) {
+    configStore.Dev_2_state = Dstatus;
+  }
+  config_save();
+}
+
+

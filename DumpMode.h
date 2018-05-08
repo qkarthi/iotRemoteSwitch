@@ -24,14 +24,6 @@ int con_mode_limit_val = 25;
 unsigned long mode_changer_millis = 3000;
 
 ////////////////////////////////
-void deviceLastMem(int dev_id, int Dstatus) {
-  if (dev_id == 1) {
-    configStore.Dev_1_state = Dstatus;
-  } else if (dev_id == 2) {
-    configStore.Dev_2_state = Dstatus;
-  }
-  config_save();
-}
 ////////////////////////////////
 void switchTrigger(int dHardwarePin, int &DHwSwitcState, int &DState, int dOpPin, unsigned long &d_hw_switch_trig_millis, int D_id)
 {
