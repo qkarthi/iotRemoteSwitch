@@ -4,25 +4,23 @@ struct ConfigStore {
   uint8_t   flagConfig:1;
   uint8_t   flagApFail:1;
   uint8_t   flagSelfTest:1;
-  
+
   char      wifiSSID[34];
   char      wifiPass[34];
-  
+
   char      cloudToken[34];
   char      cloudHost[34];
   uint16_t  cloudPort;
-
+  
   char      equip_name[34];
-  
-  char      mspace_1[24]; //dev1
-  char      mspace_2[24]; //dev2
- 
-  
+
+  char      device_1_name[24]; //dev1
+  char      device_2_name[24]; //dev2
+
   
   uint8_t   Dev_1_state:1;
   uint8_t   Dev_2_state:1;
 
-  
   uint16_t  checksum;
 } __attribute__((packed));
 
@@ -37,8 +35,9 @@ const ConfigStore configDefault = {
   "",
   
   "invalid token",
-  "blynk-cloud.com", 8442,
-  BOARD_NAME,"no name","no name",
+  "blynk-cloud.com", 80,
+  "switcher",
+  "appliance1","appliance2",
   0,0,
   0
 };
@@ -48,6 +47,7 @@ const ConfigStore configDefault = {
 
 void config_load()
 {
+  memset(&configStore, 0, sizeof(configStore));
   EEPROM.get(EEPROM_CONFIG_START, configStore);
   if (configStore.magic != configDefault.magic) {
     DEBUG_PRINT("Using default config.");
@@ -70,7 +70,7 @@ bool config_init()
   return true;
 }
 
-void config_reset()
+void enterResetConfig()
 {
   DEBUG_PRINT("Resetting configuration!");
   configStore = configDefault;

@@ -1,12 +1,23 @@
-#include <Arduino.h>
-#include <BlynkSimpleEsp8266.h>
+/**************************************************************
+ * This is a DEMO. You can use it only for development and testing.
+ *
+ * If you would like to add these features to your product,
+ * please contact Blynk for Business:
+ *
+ *                  http://www.blynk.io/
+ *
+ **************************************************************/
+
+extern "C" {
+  #include "user_interface.h"
+}
+
 #include "Settings.h"
 #include "BlynkState.h"
 #include "ConfigStore.h"
-#include "ResetButton.h"
 #include "ConfigMode.h"
 #include "OTA.h"
-#include "DumpMode.h"
+
 inline
 void BlynkState::set(State m) {
   if (state != m) {
@@ -26,19 +37,17 @@ public:
 
     randomSeed(ESP.getChipId());
 
-    button_init();
     config_init();
-   pinMode(BOARD_BUZZER_PIN, OUTPUT);
-    
+
     if (configStore.flagConfig) {
       BlynkState::set(MODE_CONNECTING_NET);
     } else {
-      BlynkState::set(MODE_DUMB);
+      BlynkState::set(MODE_WAIT_CONFIG);
     }
   }
+
   void run() {
     switch (BlynkState::get()) {
-    case MODE_DUMB:              enterDumbMode();      break;
     case MODE_WAIT_CONFIG:       
     case MODE_CONFIGURING:       enterConfigMode();    break;
     case MODE_CONNECTING_NET:    enterConnectNet();    break;
@@ -46,7 +55,7 @@ public:
     case MODE_RUNNING:           Blynk.run();          break;
     case MODE_OTA_UPGRADE:       enterOTA();           break;
     case MODE_SWITCH_TO_STA:     enterSwitchToSTA();   break;
-    case MODE_RESET_CONFIG:      config_reset();       break;
+    case MODE_RESET_CONFIG:      enterResetConfig();   break;
     default:                     enterError();         break;
     }
   }
@@ -54,3 +63,4 @@ public:
 };
 
 Provisioning BlynkProvisioning;
+

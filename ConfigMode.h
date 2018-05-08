@@ -1,3 +1,13 @@
+/**************************************************************
+ * This is a DEMO. You can use it only for development and testing.
+ *
+ * If you would like to add these features to your product,
+ * please contact Blynk for Business:
+ *
+ *                  http://www.blynk.io/
+ *
+ **************************************************************/
+
 #include <ESP8266WiFi.h>
 #include <ESP8266WebServer.h>
 #include <ESP8266HTTPUpdateServer.h>
@@ -15,8 +25,7 @@ const char* config_form = R"html(
   <label>Password:  </label><input type="text" name="pass" length=32><br/>
   <label>Auth token:</label><input type="text" name="blynk" placeholder="a0b1c2d..." pattern="[a-zA-Z0-9]{32}" maxlength="32" required="required"><br/>
   <label>Host: </label><input type="text" name="host" length=32><br/>
-  <label>equipment_name: </label><input type="text" name="equipment_name" length=32><br/>
-  <label>Port: </label><input type="number" name="port" value="8442" min="1" max="65535"><br/>
+  <label>Port: </label><input type="number" name="port" value="80" min="1" max="65535"><br/>
   <input type='submit' value="Apply">
 </form>
 </html>
@@ -39,9 +48,8 @@ void enterConfigMode()
   delay(500);
   IPAddress myIP = WiFi.softAPIP();
   DEBUG_PRINT(String("AP SSID: ") + SSID_CHAR);
-  DEBUG_PRINT(String("MAC ID: ") +  String(WiFi.macAddress()));
   DEBUG_PRINT(String("AP IP:   ") + myIP[0] + "." + myIP[1] + "." + myIP[2] + "." + myIP[3]);
-   
+
   if (myIP == (uint32_t)0)
   {
     BlynkState::set(MODE_ERROR);
@@ -51,8 +59,13 @@ void enterConfigMode()
   // Set up DNS Server
   dnsServer.setTTL(300); // Time-to-live 300s
   dnsServer.setErrorReplyCode(DNSReplyCode::ServerFailure); // Return code for non-accessible domains
-  dnsServer.start(DNS_PORT, (BOARD_CONFIG_AP_URL), WiFi.softAPIP());
+#ifdef WIFI_CAPTIVE_PORTAL_ENABLE
+  dnsServer.start(DNS_PORT, "*", WiFi.softAPIP()); // Point all to our IP
+  server.onNotFound(handleRoot);
+#else
+  dnsServer.start(DNS_PORT, BOARD_CONFIG_AP_URL, WiFi.softAPIP());
   DEBUG_PRINT(String("AP URL:  ") + BOARD_CONFIG_AP_URL);
+#endif
 
   httpUpdater.setup(&server);
 
@@ -66,14 +79,10 @@ void enterConfigMode()
     if (ssidManual != "") {
       ssid = ssidManual;
     }
-    
     String token = server.arg("blynk");
     String host  = server.arg("host");
     String port  = server.arg("port");
-    String equip_name  = server.arg("equipment_name");
-   if (equip_name == "") {
-      equip_name = "smart_switch";
-    }
+
     String content;
     unsigned statusCode;
 
@@ -91,8 +100,6 @@ void enterConfigMode()
       if (port.length()) {
         configStore.cloudPort = port.toInt();
       }
-      CopyString(equip_name, configStore.equip_name);
-      
 
       content = R"json({"status":"ok","msg":"Configuration saved"})json";
       statusCode = 200;
@@ -106,7 +113,7 @@ void enterConfigMode()
       server.send(statusCode, "application/json", content);
     }
   });
- server.on("/board_info.json", []() {
+  server.on("/board_info.json", []() {
     char buff[256];
     snprintf(buff, sizeof(buff),
       R"json({"board":"%s","vendor":"%s","tmpl_id":"%s","fw_ver":"%s","hw_ver":"%s"})json",
@@ -119,7 +126,7 @@ void enterConfigMode()
     server.send(200, "application/json", buff);
   });
   server.on("/reset", []() {
-    config_reset();
+    BlynkState::set(MODE_RESET_CONFIG);
     server.send(200, "application/json", R"json({"status":"ok","msg":"Configuration reset"})json");
   });
   server.on("/reboot", []() {
@@ -146,15 +153,13 @@ void enterConnectNet() {
   DEBUG_PRINT(String("Connecting to WiFi: ") + configStore.wifiSSID);
   
   WiFi.mode(WIFI_STA);
-  if (!WiFi.begin(configStore.wifiSSID, configStore.wifiPass)){
-    //BlynkState::set(MODE_DUMB);
+  if (!WiFi.begin(configStore.wifiSSID, configStore.wifiPass))
     return;
-  }
   
   unsigned long timeoutMs = millis() + WIFI_NET_CONNECT_TIMEOUT;
   while ((timeoutMs > millis()) && (WiFi.status() != WL_CONNECTED))
   {
-    delay(50);
+    delay(100);
     if (!BlynkState::is(MODE_CONNECTING_NET)) {
       WiFi.disconnect();
       return;
@@ -163,10 +168,9 @@ void enterConnectNet() {
   
   if (WiFi.status() == WL_CONNECTED) {
     BlynkState::set(MODE_CONNECTING_CLOUD);
-  } 
-  else {
-    BlynkState::set(MODE_DUMB);
- }
+  } else {
+    BlynkState::set(MODE_ERROR);
+  }
 }
 
 void enterConnectCloud() {
@@ -177,7 +181,8 @@ void enterConnectCloud() {
   Blynk.connect(0);
 
   unsigned long timeoutMs = millis() + WIFI_CLOUD_CONNECT_TIMEOUT;
-  while ((timeoutMs > millis()) && (Blynk.connected() == false))
+  while ((timeoutMs > millis()) &&
+        (Blynk.connected() == false))
   {
     Blynk.run();
     if (!BlynkState::is(MODE_CONNECTING_CLOUD)) {
@@ -192,17 +197,12 @@ void enterConnectCloud() {
     if (!configStore.flagConfig) {
       configStore.flagConfig = true;
       config_save();
-      digitalWrite(BOARD_BUZZER_PIN, LOW);
       DEBUG_PRINT("Configuration stored to flash");
     }
-  } 
-  else  {
-     if (!configStore.flagConfig){
-    BlynkState::set(MODE_DUMB);
+  } else {
+    BlynkState::set(MODE_ERROR);
   }
 }
-}
-
 
 void enterSwitchToSTA() {
   BlynkState::set(MODE_SWITCH_TO_STA);
@@ -220,7 +220,7 @@ void enterError() {
   BlynkState::set(MODE_ERROR);
   
   unsigned long timeoutMs = millis() + 10000;
-  while (timeoutMs > millis() || g_buttonPressed)
+  while (timeoutMs > millis())
   {
     delay(10);
     if (!BlynkState::is(MODE_ERROR)) {
@@ -229,7 +229,7 @@ void enterError() {
   }
   DEBUG_PRINT("Restarting after error.");
   delay(10);
- restartMCU();
-}
 
+  restartMCU();
+}
 
