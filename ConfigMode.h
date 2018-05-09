@@ -1,11 +1,11 @@
 /**************************************************************
- * This is a DEMO. You can use it only for development and testing.
- *
- * If you would like to add these features to your product,
- * please contact Blynk for Business:
- *
- *                  http://www.blynk.io/
- *
+   This is a DEMO. You can use it only for development and testing.
+
+   If you would like to add these features to your product,
+   please contact Blynk for Business:
+
+                    http://www.blynk.io/
+
  **************************************************************/
 
 #include <ESP8266WiFi.h>
@@ -17,7 +17,7 @@ ESP8266WebServer server(WIFI_AP_CONFIG_PORT);
 ESP8266HTTPUpdateServer httpUpdater;
 DNSServer dnsServer;
 const byte DNS_PORT = 53;
-
+unsigned long ap_timeout_millis=0;
 const char* config_form = R"html(
 <!DOCTYPE HTML><html>
 <form method='get' action='config'>
@@ -134,8 +134,15 @@ void enterConfigMode()
   });
 
   server.begin();
-
+  ap_timeout_millis=millis();
   while (BlynkState::is(MODE_WAIT_CONFIG) || BlynkState::is(MODE_CONFIGURING)) {
+    
+    if(millis()-ap_timeout_millis>180000){
+       WiFi.mode(WIFI_OFF);
+        BlynkState::set(MODE_DUMB);
+        
+    }
+    
     dnsServer.processNextRequest();
     server.handleClient();
     if (BlynkState::is(MODE_WAIT_CONFIG) && WiFi.softAPgetStationNum() > 0) {
