@@ -35,7 +35,7 @@ void resetPollCounterFunc() {
 }
 ////////////////////////////////
 void reset_mode_chk_func() {
-  if (reset_mode_val > reset_mode_limit_val) {
+  if (reset_mode_val >= reset_mode_limit_val) {
     digitalWrite(d1_op_pin_1, LOW);
     digitalWrite(d2_op_pin_1, LOW);
     delay(1000);

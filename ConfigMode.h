@@ -17,7 +17,7 @@ ESP8266WebServer server(WIFI_AP_CONFIG_PORT);
 ESP8266HTTPUpdateServer httpUpdater;
 DNSServer dnsServer;
 const byte DNS_PORT = 53;
-unsigned long ap_timeout_millis=0;
+unsigned long ap_timeout_millis = 0;
 const char* config_form = R"html(
 <!DOCTYPE HTML><html>
 <form method='get' action='config'>
@@ -139,8 +139,9 @@ void enterConfigMode()
     
     if(millis()-ap_timeout_millis>180000){
        WiFi.mode(WIFI_OFF);
-        BlynkState::set(MODE_DUMB);
-        
+        delay(1000);
+      WiFi.mode(WIFI_STA);
+       restartMCU();
     }
     
     dnsServer.processNextRequest();

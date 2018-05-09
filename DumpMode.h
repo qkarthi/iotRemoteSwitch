@@ -34,7 +34,9 @@ void configPollCounterFunc() {
 }
 ////////////////////////////////
 void config_mode_chk_func() {
-  if (con_mode_val > con_mode_limit_val) {
+  if (con_mode_val >= con_mode_limit_val) {
+
+    con_mode_val = 0;
     digitalWrite(d1_op_pin_1, LOW);
     digitalWrite(d2_op_pin_1, LOW);
     delay(1000);
