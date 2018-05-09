@@ -25,12 +25,12 @@ BLYNK_CONNECTED() {
 BLYNK_WRITE(V11) // manual button for d1
 {
   d1_state  = param.asInt();
-  d1_update_func(0,0);
+  d1_update_func(0, 0);
 }
 BLYNK_WRITE(V12) // manual button for d2
 {
   d2_state  = param.asInt();
-  d2_update_func(0,0);
+  d2_update_func(0, 0);
 }
 ////////////////////////////////////////////////////////
 BLYNK_WRITE(V99) // terminal widget
@@ -105,9 +105,9 @@ void firmware_update() {
   delay(500);
 }
 ////////////////////////////////////////////////
-void d1_update_func(int hw_valid,int hw_switch_state) {
+void d1_update_func(int hw_valid, int hw_switch_state) {
   digitalWrite(d1_op_pin_1, d1_state);
-  deviceLastMem(1,d1_state,hw_valid,hw_switch_state);
+  deviceLastMem(1, d1_state, hw_valid, hw_switch_state);
   if (d1_state == HIGH)
   {
     d1_led.on();
@@ -117,9 +117,9 @@ void d1_update_func(int hw_valid,int hw_switch_state) {
   }
 }
 ////////////////////////////////////
-void d2_update_func(int hw_valid,int hw_switch_state ) {
+void d2_update_func(int hw_valid, int hw_switch_state ) {
   digitalWrite(d2_op_pin_1, d2_state);
-  deviceLastMem(2,d2_state,hw_valid,hw_switch_state);
+  deviceLastMem(2, d2_state, hw_valid, hw_switch_state);
   if (d2_state == HIGH)
   {
     d2_led.on();
@@ -136,7 +136,7 @@ void upd_d1_hw_switch_1_func()
     d1_hw_switch_1_state = !d1_hw_switch_1_state;
     d1_state = !d1_state;
     Blynk.virtualWrite(V_D1ManButPin, d1_state);
-    d1_update_func(1,d1_hw_switch_1_state);
+    d1_update_func(1, d1_hw_switch_1_state);
   }
 }
 ///////////////////////////////
@@ -147,23 +147,45 @@ void upd_d2_hw_switch_1_func()
     d2_hw_switch_1_state = !d2_hw_switch_1_state;
     d2_state = !d2_state;
     Blynk.virtualWrite(V_D2ManButPin, d2_state);
-    d2_update_func(1,d2_hw_switch_1_state);
+    d2_update_func(1, d2_hw_switch_1_state);
   }
 }
 
 ///////////////////////////////
-void deviceLastMem(int dev_id, int Dstatus, int hw_swit_valid,int hw_swit_state) {
+void deviceLastMem(int dev_id, int Dstatus, int hw_swit_valid, int hw_swit_state) {
   if (dev_id == 1) {
     configStore.Dev_1_state = Dstatus;
-    if(hw_swit_valid){
-      configStore.Dev_1_swi=hw_swit_state;
-      
+    if (hw_swit_valid) {
+      configStore.Dev_1_swi = hw_swit_state;
+
     }
   } else if (dev_id == 2) {
     configStore.Dev_2_state = Dstatus;
-    if(hw_swit_valid){
-      configStore.Dev_2_swi=hw_swit_state;
+    if (hw_swit_valid) {
+      configStore.Dev_2_swi = hw_swit_state;
     }
   }
   config_save();
 }
+////////////////////////////////
+void con_maint_func() {
+
+  if (Blynk.connected() == false) {
+
+    if (!(WiFi.status() == WL_CONNECTED))
+    {
+      WiFi.disconnect();
+      WiFi.mode(WIFI_STA);
+      if (!WiFi.begin(configStore.wifiSSID, configStore.wifiPass))
+        return;
+      Serial.println("begin wifi");
+    }
+
+    Serial.println("begin blynk");
+    Blynk.disconnect();
+    Blynk.config(configStore.cloudToken, configStore.cloudHost, configStore.cloudPort);
+    Blynk.connect(0);
+
+  }
+}
+

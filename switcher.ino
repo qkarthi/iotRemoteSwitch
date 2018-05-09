@@ -1,4 +1,4 @@
-#define APP_DEBUG  
+#define APP_DEBUG
 #define BLYNK_PRINT Serial
 
 #include <BlynkSimpleEsp8266.h>
@@ -13,20 +13,12 @@ WidgetRTC rtc; //declaring rtc for time getting from mobile
 WidgetTerminal terminal(V99);  //declaring terminal
 WidgetLED d1_led(V61), d2_led(V62); // declared led for device indcaation
 //////////////////////////////////////////////////////
-BlynkTimer  d1_hw_switch_timer, d2_hw_switch_timer;
+BlynkTimer d1_hw_switch_timer, d2_hw_switch_timer;
+BlynkTimer conn_maint;
 //////////////////////////////////////////////////////
 String  client_id;
 String TermString, TermCharOne, TermCharRest, TermTimeStr;
 //////////////////////////////////////////////////////
-
-// buzzer = 4 - d2
-// reset = 5 - d1
-
-const int d1_op_pin_1 = 16; //d0
-const int d2_op_pin_1 = 14; //d5
-
-const int d1_hw_switch_pin_1 = 12; //d6
-const int d2_hw_switch_pin_1 = 13; // d7
 
 
 /////////////////////////////////////////// !!!!!! Notes some variables are commented below ( because they are used as purpose in functionality under blynk_write function )
@@ -71,52 +63,55 @@ int d2_state;
 int d2_hw_switch_1_state;
 ///////////////////////////////////////////
 void setup() {
- 
+
   client_id = String(WiFi.macAddress());
-  
+
   delay(500);
-  
+
   pinMode(d1_hw_switch_pin_1, INPUT_PULLUP); // declaring the pin as input-pullup
   pinMode(d2_hw_switch_pin_1, INPUT_PULLUP); // declaring the pin as input-pullup
 
   pinMode(d1_op_pin_1, OUTPUT); // declaring the pin as output
   pinMode(d2_op_pin_1, OUTPUT); // declaring the pin as output
-  
+
   d1_hw_switch_1_state = digitalRead(d1_hw_switch_pin_1); // getting the state of hardware device 1 switch
   d2_hw_switch_1_state = digitalRead(d2_hw_switch_pin_1); // getting the state of hardware device 2 switch
 
   Serial.begin(115200);
 
-  
+
   BlynkProvisioning.begin();
 
-  
+
   d1_state =  configStore.Dev_1_state;
   d2_state =  configStore.Dev_2_state;
 
   digitalWrite(d1_op_pin_1, d1_state);
   digitalWrite(d2_op_pin_1, d2_state);
-  
-  if(d1_hw_switch_1_state!=configStore.Dev_1_swi){
-     d1_state = !d1_state;
-    d1_update_func(1,d1_hw_switch_1_state);
+
+  if (d1_hw_switch_1_state != configStore.Dev_1_swi) {
+    d1_state = !d1_state;
+    d1_update_func(1, d1_hw_switch_1_state);
   }
-  
-  if(d2_hw_switch_1_state!=configStore.Dev_2_swi){
+
+  if (d2_hw_switch_1_state != configStore.Dev_2_swi) {
     d2_state = !d2_state;
-    d2_update_func(1,d2_hw_switch_1_state);
+    d2_update_func(1, d2_hw_switch_1_state);
   }
-  
+
   d1_hw_switch_timer.setInterval(500, upd_d1_hw_switch_1_func);// setting the hardware switch timer with regular interval
   d2_hw_switch_timer.setInterval(500, upd_d2_hw_switch_1_func);// setting the hardware switch timer with regular interval
-  
-
+  conn_maint.setInterval(10000, con_maint_func);
 }
 
 void loop() {
-  
+
   BlynkProvisioning.run();
-  
-  d1_hw_switch_timer.run();
-  d2_hw_switch_timer.run();
+
+  if (configStore.flagConfig) {
+    d1_hw_switch_timer.run();
+    d2_hw_switch_timer.run();
+    conn_maint.run();
+  }
+  FBDumbMode();
 }

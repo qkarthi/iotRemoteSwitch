@@ -218,6 +218,10 @@ void enterSwitchToSTA() {
 
 void enterError() {
   BlynkState::set(MODE_ERROR);
+
+  if (configStore.flagConfig) {
+     BlynkState::set(MODE_FBDUMB);
+  }
   
   unsigned long timeoutMs = millis() + 10000;
   while (timeoutMs > millis())
