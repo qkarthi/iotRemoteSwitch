@@ -10,7 +10,7 @@
 #define BOARD_TEMPLATE_ID             "TMPL69671"              // modified date - 20-04-2018 . please refer this link https://docs.google.com/document/d/1eNIuMXTLmeqM0j9BBMLlaJxUew-NkhPgMVLRorw1u3E/edit?usp=sharing
                                                                // PRODUCTION VERSION template .
 
-#define PRODUCT_WIFI_SSID             "IO-SW-V100"             // Name of the device, to be displayed during configuration. Should match export request info.
+#define PRODUCT_WIFI_SSID             "IO_SW_V100"             // Name of the device, to be displayed during configuration. Should match export request info.
 #define BOARD_CONFIG_AP_URL           "switcher.set"            // Config page will be available in a browser at 'http://our-product.cc/'
 
 #define BOARD_BUTTON_PIN            16

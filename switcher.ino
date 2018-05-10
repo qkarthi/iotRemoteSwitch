@@ -101,7 +101,7 @@ void setup() {
 
   d1_hw_switch_timer.setInterval(500, upd_d1_hw_switch_1_func);// setting the hardware switch timer with regular interval
   d2_hw_switch_timer.setInterval(500, upd_d2_hw_switch_1_func);// setting the hardware switch timer with regular interval
-  conn_maint.setInterval(10000, con_maint_func);
+  conn_maint.setInterval(60000, con_maint_func);
 }
 
 void loop() {
@@ -114,4 +114,5 @@ void loop() {
     conn_maint.run();
   }
   FBDumbMode();
+  RTAPMode();
 }

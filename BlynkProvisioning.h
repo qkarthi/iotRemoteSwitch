@@ -32,9 +32,9 @@ class Provisioning {
   public:
     void begin()
     {
-      DEBUG_PRINT("");
-      DEBUG_PRINT("Hardware v" + String(BOARD_HARDWARE_VERSION));
-      DEBUG_PRINT("Firmware v" + String(BOARD_FIRMWARE_VERSION));
+      DEBUG_PRINT(" ");
+      DEBUG_PRINT("IOTICS");
+      DEBUG_PRINT("SWITCHER_V1.0.0");
 
       randomSeed(ESP.getChipId());
 

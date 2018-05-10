@@ -35,11 +35,11 @@ void configPollCounterFunc() {
 ////////////////////////////////
 void config_mode_chk_func() {
   if (con_mode_val >= con_mode_limit_val) {
-
+    
     con_mode_val = 0;
     digitalWrite(d1_op_pin_1, LOW);
     digitalWrite(d2_op_pin_1, LOW);
-    delay(1000);
+    delay(5000);
     digitalWrite(d1_op_pin_1, HIGH);
     digitalWrite(d2_op_pin_1, HIGH);
     delay(1000);
@@ -51,13 +51,9 @@ void config_mode_chk_func() {
     delay(1000);
     digitalWrite(d1_op_pin_1, LOW);
     digitalWrite(d2_op_pin_1, LOW);
-    delay(1000);
-    digitalWrite(d1_op_pin_1, HIGH);
-    digitalWrite(d2_op_pin_1, HIGH);
-    delay(1000);
-    digitalWrite(d1_op_pin_1, LOW);
-    digitalWrite(d2_op_pin_1, LOW);
+    delay(500);
     BlynkState::set(MODE_WAIT_CONFIG);
+    
   }
 }
 ////////////////////////////////
@@ -68,6 +64,10 @@ void dev_status() {
 ////////////////////////////////
 void enterDumbMode() {
   dev_status();
+  configPollCounterFunc();
+  config_mode_chk_func();
+}
+void RTAPMode() {
   configPollCounterFunc();
   config_mode_chk_func();
 }

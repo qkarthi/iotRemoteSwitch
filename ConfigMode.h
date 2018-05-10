@@ -41,7 +41,7 @@ void enterConfigMode()
   delay(100);
   WiFi.mode(WIFI_AP);
   WiFi.softAPConfig(WIFI_AP_IP, WIFI_AP_IP, WIFI_AP_Subnet);
-  String HOTSPOT_SSID_STRING=String(PRODUCT_WIFI_SSID)+String("_")+String(WiFi.macAddress())+String("_");
+  String HOTSPOT_SSID_STRING=String(PRODUCT_WIFI_SSID)+String("_")+String(WiFi.macAddress());
   char SSID_CHAR[HOTSPOT_SSID_STRING.length()];
   HOTSPOT_SSID_STRING.toCharArray(SSID_CHAR, HOTSPOT_SSID_STRING.length()+1);
   WiFi.softAP(SSID_CHAR);

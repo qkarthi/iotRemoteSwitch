@@ -38,7 +38,7 @@ void reset_mode_chk_func() {
   if (reset_mode_val >= reset_mode_limit_val) {
     digitalWrite(d1_op_pin_1, LOW);
     digitalWrite(d2_op_pin_1, LOW);
-    delay(1000);
+    delay(5000);
     digitalWrite(d1_op_pin_1, HIGH);
     digitalWrite(d2_op_pin_1, HIGH);
     delay(1000);
@@ -50,12 +50,7 @@ void reset_mode_chk_func() {
     delay(1000);
     digitalWrite(d1_op_pin_1, LOW);
     digitalWrite(d2_op_pin_1, LOW);
-    delay(1000);
-    digitalWrite(d1_op_pin_1, HIGH);
-    digitalWrite(d2_op_pin_1, HIGH);
-    delay(1000);
-    digitalWrite(d1_op_pin_1, LOW);
-    digitalWrite(d2_op_pin_1, LOW);
+    delay(500);
     ///////////////////////////////////
 
     configStore = configDefault;

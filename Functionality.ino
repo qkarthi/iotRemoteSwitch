@@ -170,22 +170,29 @@ void deviceLastMem(int dev_id, int Dstatus, int hw_swit_valid, int hw_swit_state
 ////////////////////////////////
 void con_maint_func() {
 
-  if (Blynk.connected() == false) {
-
-    if (!(WiFi.status() == WL_CONNECTED))
-    {
-      WiFi.disconnect();
-      WiFi.mode(WIFI_STA);
-      if (!WiFi.begin(configStore.wifiSSID, configStore.wifiPass))
-        return;
-      Serial.println("begin wifi");
+    Serial.println("chk blynk function");
+    
+  if (WiFi.status() == WL_CONNECTED)  
+  {
+    unsigned long startConnecting = millis();    
+    while(!Blynk.connected()){
+      Blynk.connect();  
+      if(millis() > startConnecting + 1000){
+        DEBUG_PRINT("Unable to connect to server. ");
+        break;
+      }
     }
-
-    Serial.println("begin blynk");
+    if(Blynk.connected()){
+      BlynkState::set(MODE_RUNNING);
+    }
+  }
+  if (WiFi.status() != 3) {
+    DEBUG_PRINT("\tNo WiFi. ");
+    DEBUG_PRINT("\tTrying to reconnect. ");
     Blynk.disconnect();
     Blynk.config(configStore.cloudToken, configStore.cloudHost, configStore.cloudPort);
     Blynk.connect(0);
-
-  }
+  } 
+  
 }
 
