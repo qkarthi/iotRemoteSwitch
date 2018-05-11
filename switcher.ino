@@ -14,12 +14,29 @@ WidgetTerminal terminal(V99);  //declaring terminal
 WidgetLED d1_led(V61), d2_led(V62); // declared led for device indcaation
 //////////////////////////////////////////////////////
 BlynkTimer d1_hw_switch_timer, d2_hw_switch_timer;
-BlynkTimer conn_maint;
+BlynkTimer conn_maint,upd_equipment_detail_timer;
+BlynkTimer  scheduler_1_timer, scheduler_2_timer;
 //////////////////////////////////////////////////////
 String  client_id;
 String TermString, TermCharOne, TermCharRest, TermTimeStr;
 //////////////////////////////////////////////////////
 
+int scheduler_1_var_1;
+int scheduler_2_var_1;
+
+int device_selected_scheduler_1;
+int device_selected_scheduler_2;
+
+long additional_scheduling_intervals = 9;
+long scheduler_1_start_seconds;
+long scheduler_2_start_seconds;
+
+long scheduler_1_stop_seconds;
+long scheduler_2_stop_seconds;
+///////////////////////////////////////////
+long nowseconds_var;
+int dayadjustment_var;
+int day_i;
 
 /////////////////////////////////////////// !!!!!! Notes some variables are commented below ( because they are used as purpose in functionality under blynk_write function )
 
@@ -101,7 +118,15 @@ void setup() {
 
   d1_hw_switch_timer.setInterval(500, upd_d1_hw_switch_1_func);// setting the hardware switch timer with regular interval
   d2_hw_switch_timer.setInterval(500, upd_d2_hw_switch_1_func);// setting the hardware switch timer with regular interval
+
+  
+  scheduler_1_timer.setInterval(5000, scheduler_1_func); // setting the device 1 timer with regular interval
+  scheduler_2_timer.setInterval(5000, scheduler_2_func); // setting the device 2 timer with regular interval
+  
   conn_maint.setInterval(60000, con_maint_func);
+  
+  upd_equipment_detail_timer.setInterval(10000, upd_equipment_detail_func);
+  
 }
 
 void loop() {
@@ -109,8 +134,9 @@ void loop() {
   BlynkProvisioning.run();
 
   if (configStore.flagConfig) {
-    d1_hw_switch_timer.run();
-    d2_hw_switch_timer.run();
+    d1_hw_switch_timer.run(); scheduler_1_timer.run();
+    d2_hw_switch_timer.run(); scheduler_2_timer.run();
+    upd_equipment_detail_timer.run();
     conn_maint.run();
   }
   FBDumbMode();

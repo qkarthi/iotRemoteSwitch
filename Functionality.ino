@@ -21,6 +21,10 @@ BLYNK_CONNECTED() {
     Blynk.virtualWrite(V_D2ManButPin, LOW);
     d2_led.off();
   }
+  Blynk.syncVirtual(V21);
+  Blynk.syncVirtual(V22);
+  Blynk.syncVirtual(V71);
+  Blynk.syncVirtual(V72);
 }
 BLYNK_WRITE(V11) // manual button for d1
 {
@@ -115,6 +119,7 @@ void d1_update_func(int hw_valid, int hw_switch_state) {
   {
     d1_led.off();
   }
+   comb_Dstatus();
 }
 ////////////////////////////////////
 void d2_update_func(int hw_valid, int hw_switch_state ) {
@@ -127,6 +132,7 @@ void d2_update_func(int hw_valid, int hw_switch_state ) {
   {
     d2_led.off();
   }
+   comb_Dstatus();
 }
 ////////////////////////////////////
 void upd_d1_hw_switch_1_func()
@@ -168,6 +174,16 @@ void deviceLastMem(int dev_id, int Dstatus, int hw_swit_valid, int hw_swit_state
   config_save();
 }
 ////////////////////////////////
+void scheduler_1_func()
+{
+  Blynk.syncVirtual(V51); // time input widget for scheduling 1
+}
+
+void scheduler_2_func()
+{
+  Blynk.syncVirtual(V52); // time input widget for scheduling 2
+}
+//////////////////////////////
 void con_maint_func() {
 
     Serial.println("chk blynk function");
@@ -194,5 +210,22 @@ void con_maint_func() {
     Blynk.connect(0);
   } 
   
+}
+//////////////////////////////////
+void comb_Dstatus() {
+  if ((d1_state == LOW) && (d2_state == LOW)) {
+    Blynk.virtualWrite(V_DStaStr, "🔴🔴" ) ;
+  } else if ((d1_state == LOW) && (d2_state == HIGH)) {
+    Blynk.virtualWrite(V_DStaStr, "🔴💡" ) ;
+  } else if ((d1_state == HIGH) && (d2_state == LOW)) {
+    Blynk.virtualWrite(V_DStaStr, "💡🔴" ) ;
+  } else if ((d1_state == HIGH) && (d2_state == HIGH)) {
+    Blynk.virtualWrite(V_DStaStr, "💡💡" ) ;
+  }
+}
+//////////////////////////////////
+void upd_equipment_detail_func()
+{
+  Blynk.virtualWrite(V_RssiPin,  WiFi.RSSI() + 120); // 120 for tolerance to make the value in positive
 }
 
