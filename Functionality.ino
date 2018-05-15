@@ -9,6 +9,8 @@ BLYNK_CONNECTED() {
     DFConfig = false;
     d1_hw_switch_1_state = digitalRead(d1_hw_switch_pin_1); // getting the state of hardware device 1 switch
     d2_hw_switch_1_state = digitalRead(d2_hw_switch_pin_1); // getting the state of hardware device 2 switch
+    
+    Blynk.virtualWrite(V_DStaStr, "🔴🔴" ) ;
   }
 
   if (d1_state)
@@ -200,53 +202,37 @@ void scheduler_2_func()
 }
 //////////////////////////////
 void con_maint_func() {
-
-  Serial.println("chk blynk function");
-
-  if (WiFi.status() == WL_CONNECTED)
-  {
-    unsigned long startConnecting = millis();
-    while (!Blynk.connected()) {
-      Blynk.connect();
-      if (millis() > startConnecting + 1000) {
-        DEBUG_PRINT("Unable to connect to server. ");
-        break;
-      }
-    }
-    if (Blynk.connected()) {
-      BlynkState::set(MODE_RUNNING);
-    }
+  if (BlynkState::is(MODE_DUMB)) {
+    WiFi.mode(WIFI_OFF);
+    enterConnectNet();
   }
-  if (WiFi.status() != 3) {
-    DEBUG_PRINT("\tNo WiFi. ");
-    DEBUG_PRINT("\tTrying to reconnect. ");
+  if (BlynkState::is(MODE_RUNNING)) {
+    if (WiFi.status() != 3) {
+      DEBUG_PRINT("\tNo WiFi. ");
+      WiFi.mode(WIFI_OFF);
+      enterConnectNet();
+    }
 
-    ///////////////////////////////////////////////////////////////////////
-    if (FTC) {
-      WiFi.disconnect();
-      int n = WiFi.scanNetworks();
-      //if ssid found
-      if (n > 0)
-      {
-        for (int i = 0; i < n; ++i)
-        { // check weather the ssid match with saved ssid
-          if (WiFi.SSID(i) == configStore.wifiSSID )
-          {
-            // WiFi.begin(configStore.wifiSSID, configStore.wifiPass);
-            DEBUG_PRINT("wifi ssid found");
-            // restartMCU();  // <<-------------<<<< check point
-          }
+    if ((WiFi.status() == WL_CONNECTED) && (!Blynk.connected()))
+    {
+      DEBUG_PRINT("got wifi. ");
+      DEBUG_PRINT(WiFi.SSID().c_str());
+
+
+      Blynk.disconnect();
+      Blynk.config(configStore.cloudToken, configStore.cloudHost, configStore.cloudPort);
+      Blynk.connect(0);
+
+      unsigned long startConnecting = millis();
+      while (!Blynk.connected()) {
+        Blynk.connect();
+        if (millis() > startConnecting + 1000) {
+          DEBUG_PRINT("Unable to connect to server. ");
+          break;
         }
       }
     }
-    //////////////////////////////////////////////////////////////////////
-
-
-    Blynk.disconnect();
-    Blynk.config(configStore.cloudToken, configStore.cloudHost, configStore.cloudPort);
-    Blynk.connect(0);
   }
-
 }
 //////////////////////////////////
 void comb_Dstatus() {
@@ -265,4 +251,5 @@ void upd_equipment_detail_func()
 {
   Blynk.virtualWrite(V_RssiPin,  WiFi.RSSI() + 120); // 120 for tolerance to make the value in positive
 }
+
 
