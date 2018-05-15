@@ -18,7 +18,6 @@ extern "C" {
 #include "ConfigMode.h"
 #include "OTA.h"
 #include "DumpMode.h"
-#include "FBDumpMode.h"
 inline
 void BlynkState::set(State m) {
   if (state != m) {
@@ -58,7 +57,6 @@ class Provisioning {
         case MODE_OTA_UPGRADE:       enterOTA();           break;
         case MODE_SWITCH_TO_STA:     enterSwitchToSTA();   break;
         case MODE_RESET_CONFIG:      enterResetConfig();   break;
-        case MODE_FBDUMB:            FBDumbMode();         break;
         default:                     enterError();         break;
       }
     }

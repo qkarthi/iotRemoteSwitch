@@ -1,6 +1,15 @@
 ////////////////////////////////////////////////////////////////////////////////////
 BLYNK_CONNECTED() {
+  FTC = false;
   rtc.begin();
+
+  if (DFConfig) {
+    d1_state = LOW;
+    d2_state = LOW;
+    DFConfig = false;
+    d1_hw_switch_1_state = digitalRead(d1_hw_switch_pin_1); // getting the state of hardware device 1 switch
+    d2_hw_switch_1_state = digitalRead(d2_hw_switch_pin_1); // getting the state of hardware device 2 switch
+  }
 
   if (d1_state)
   {
@@ -25,6 +34,12 @@ BLYNK_CONNECTED() {
   Blynk.syncVirtual(V22);
   Blynk.syncVirtual(V71);
   Blynk.syncVirtual(V72);
+  Blynk.syncVirtual(V6);
+}
+BLYNK_WRITE(V6) // for upnp
+{
+  configStore.upnp_vars = param.asInt();
+  config_save();
 }
 BLYNK_WRITE(V11) // manual button for d1
 {
@@ -119,7 +134,7 @@ void d1_update_func(int hw_valid, int hw_switch_state) {
   {
     d1_led.off();
   }
-   comb_Dstatus();
+  comb_Dstatus();
 }
 ////////////////////////////////////
 void d2_update_func(int hw_valid, int hw_switch_state ) {
@@ -132,7 +147,7 @@ void d2_update_func(int hw_valid, int hw_switch_state ) {
   {
     d2_led.off();
   }
-   comb_Dstatus();
+  comb_Dstatus();
 }
 ////////////////////////////////////
 void upd_d1_hw_switch_1_func()
@@ -186,30 +201,52 @@ void scheduler_2_func()
 //////////////////////////////
 void con_maint_func() {
 
-    Serial.println("chk blynk function");
-    
-  if (WiFi.status() == WL_CONNECTED)  
+  Serial.println("chk blynk function");
+
+  if (WiFi.status() == WL_CONNECTED)
   {
-    unsigned long startConnecting = millis();    
-    while(!Blynk.connected()){
-      Blynk.connect();  
-      if(millis() > startConnecting + 1000){
+    unsigned long startConnecting = millis();
+    while (!Blynk.connected()) {
+      Blynk.connect();
+      if (millis() > startConnecting + 1000) {
         DEBUG_PRINT("Unable to connect to server. ");
         break;
       }
     }
-    if(Blynk.connected()){
+    if (Blynk.connected()) {
       BlynkState::set(MODE_RUNNING);
     }
   }
   if (WiFi.status() != 3) {
     DEBUG_PRINT("\tNo WiFi. ");
     DEBUG_PRINT("\tTrying to reconnect. ");
+
+    ///////////////////////////////////////////////////////////////////////
+    if (FTC) {
+      WiFi.disconnect();
+      int n = WiFi.scanNetworks();
+      //if ssid found
+      if (n > 0)
+      {
+        for (int i = 0; i < n; ++i)
+        { // check weather the ssid match with saved ssid
+          if (WiFi.SSID(i) == configStore.wifiSSID )
+          {
+            // WiFi.begin(configStore.wifiSSID, configStore.wifiPass);
+            DEBUG_PRINT("wifi ssid found");
+            // restartMCU();  // <<-------------<<<< check point
+          }
+        }
+      }
+    }
+    //////////////////////////////////////////////////////////////////////
+
+
     Blynk.disconnect();
     Blynk.config(configStore.cloudToken, configStore.cloudHost, configStore.cloudPort);
     Blynk.connect(0);
-  } 
-  
+  }
+
 }
 //////////////////////////////////
 void comb_Dstatus() {

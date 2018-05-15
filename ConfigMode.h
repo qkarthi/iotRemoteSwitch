@@ -18,6 +18,7 @@ ESP8266HTTPUpdateServer httpUpdater;
 DNSServer dnsServer;
 const byte DNS_PORT = 53;
 unsigned long ap_timeout_millis = 0;
+bool DFConfig = false;
 const char* config_form = R"html(
 <!DOCTYPE HTML><html>
 <form method='get' action='config'>
@@ -101,6 +102,11 @@ void enterConfigMode()
         configStore.cloudPort = port.toInt();
       }
 
+      DFConfig=true;
+      configStore.Dev_1_state = false;
+      
+      configStore.Dev_2_state = false;
+      
       content = R"json({"status":"ok","msg":"Configuration saved"})json";
       statusCode = 200;
       server.send(statusCode, "application/json", content);
@@ -228,7 +234,7 @@ void enterError() {
   BlynkState::set(MODE_ERROR);
 
   if (configStore.flagConfig) {
-     BlynkState::set(MODE_FBDUMB);
+     BlynkState::set(MODE_DUMB);
   }
   
   unsigned long timeoutMs = millis() + 10000;

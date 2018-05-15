@@ -6,15 +6,12 @@
 #include <TimeLib.h>
 #include <WidgetRTC.h>
 
-//////////////////////////////////////////////////////
-
-////////////////////// alexa integration /////////////
 WidgetRTC rtc; //declaring rtc for time getting from mobile
 WidgetTerminal terminal(V99);  //declaring terminal
 WidgetLED d1_led(V61), d2_led(V62); // declared led for device indcaation
 //////////////////////////////////////////////////////
 BlynkTimer d1_hw_switch_timer, d2_hw_switch_timer;
-BlynkTimer conn_maint,upd_equipment_detail_timer;
+BlynkTimer conn_maint, upd_equipment_detail_timer;
 BlynkTimer  scheduler_1_timer, scheduler_2_timer;
 //////////////////////////////////////////////////////
 String  client_id;
@@ -73,6 +70,7 @@ const int V_DevSelector2 = 72; //device selector for scheduler 2 pin
 const int V_colletive = 112;    // it is used for tile update .
 
 ///////////////////////////////////////////
+bool FTC = true;
 int d1_state;
 int d1_hw_switch_1_state;
 
@@ -119,14 +117,14 @@ void setup() {
   d1_hw_switch_timer.setInterval(500, upd_d1_hw_switch_1_func);// setting the hardware switch timer with regular interval
   d2_hw_switch_timer.setInterval(500, upd_d2_hw_switch_1_func);// setting the hardware switch timer with regular interval
 
-  
+
   scheduler_1_timer.setInterval(5000, scheduler_1_func); // setting the device 1 timer with regular interval
   scheduler_2_timer.setInterval(5000, scheduler_2_func); // setting the device 2 timer with regular interval
-  
+
   conn_maint.setInterval(60000, con_maint_func);
-  
+
   upd_equipment_detail_timer.setInterval(10000, upd_equipment_detail_func);
-  
+
 }
 
 void loop() {
@@ -139,6 +137,5 @@ void loop() {
     upd_equipment_detail_timer.run();
     //conn_maint.run();
   }
-  FBDumbMode();
-  RTAPMode();
+  CoR_PollCounterFunc();
 }
