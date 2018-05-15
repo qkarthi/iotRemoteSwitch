@@ -137,7 +137,7 @@ void loop() {
     d1_hw_switch_timer.run(); scheduler_1_timer.run();
     d2_hw_switch_timer.run(); scheduler_2_timer.run();
     upd_equipment_detail_timer.run();
-    conn_maint.run();
+    //conn_maint.run();
   }
   FBDumbMode();
   RTAPMode();
