@@ -10,7 +10,6 @@ BLYNK_CONNECTED() {
     d1_hw_switch_1_state = digitalRead(d1_hw_switch_pin_1); // getting the state of hardware device 1 switch
     d2_hw_switch_1_state = digitalRead(d2_hw_switch_pin_1); // getting the state of hardware device 2 switch
     
-    Blynk.virtualWrite(V_DStaStr, "🔴🔴" ) ;
   }
 
   if (d1_state)
@@ -37,6 +36,7 @@ BLYNK_CONNECTED() {
   Blynk.syncVirtual(V71);
   Blynk.syncVirtual(V72);
   Blynk.syncVirtual(V6);
+  comb_Dstatus();
 }
 BLYNK_WRITE(V6) // for upnp
 {
