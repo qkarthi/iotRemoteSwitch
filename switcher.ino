@@ -132,11 +132,16 @@ void loop() {
   BlynkProvisioning.run();
 
   if (configStore.flagConfig) {
-    d1_hw_switch_timer.run(); scheduler_1_timer.run();
-    d2_hw_switch_timer.run(); scheduler_2_timer.run();
+    d1_hw_switch_timer.run();
+    d2_hw_switch_timer.run();
+    
+    scheduler_1_timer.run();
+    scheduler_2_timer.run();
+    
     upd_equipment_detail_timer.run();
+    
     conn_maint.run();
   }
 
-    CoR_PollCounterFunc();
-  }
+  CoR_PollCounterFunc();
+}
