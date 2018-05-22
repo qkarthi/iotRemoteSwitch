@@ -6,6 +6,11 @@
 #include <TimeLib.h>
 #include <WidgetRTC.h>
 
+//alexa header files
+#include <WiFiUdp.h>
+#include <functional>
+
+
 WidgetRTC rtc; //declaring rtc for time getting from mobile
 WidgetTerminal terminal(V99);  //declaring terminal
 WidgetLED d1_led(V61), d2_led(V62); // declared led for device indcaation
@@ -77,6 +82,23 @@ int d1_hw_switch_1_state;
 int d2_state;
 int d2_hw_switch_1_state;
 ///////////////////////////////////////////
+// alexa variables
+//*************************************************************//
+bool connectUDP();
+void startHttpServer();
+bool alexa_initiated = false;
+bool alexa_debug_vars = true;
+///////////////////////////////////////////
+// Some UDP / WeMo specific variables:
+WiFiUDP UDP;
+IPAddress ipMulti(239, 255, 255, 250);
+unsigned int portMulti = 1900; // local port to listen on
+ESP8266WebServer HTTP(80);
+String serial; // Where we save the string of the UUID
+String persistent_uuid; // Where we save some socket info with the UUID
+char packetBuffer[UDP_TX_PACKET_MAX_SIZE]; // Buffer to save incoming packets:
+
+//*************************************************************//
 void setup() {
 
   client_id = String(WiFi.macAddress());
@@ -134,14 +156,23 @@ void loop() {
   if (configStore.flagConfig) {
     d1_hw_switch_timer.run();
     d2_hw_switch_timer.run();
-    
+
     scheduler_1_timer.run();
     scheduler_2_timer.run();
-    
+
     upd_equipment_detail_timer.run();
-    
+
     conn_maint.run();
   }
-
+  if (BlynkState::is(MODE_RUNNING) ) {
+    if (!alexa_initiated) {
+      start_alexa();
+      alexa_initiated = 1;
+    }
+    HTTP.handleClient();
+    delay(1);
+    parsePackets(); // If there are packets, we parse them:
+    delay(10);
+  }
   CoR_PollCounterFunc();
 }
