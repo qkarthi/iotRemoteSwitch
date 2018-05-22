@@ -1,17 +1,3 @@
-
-//void setup()
-//{
-//  start_alexa();
-//}
-
-//void loop()
-//{
-//  HTTP.handleClient();
-//  delay(1);
-//  parsePackets(); // If there are packets, we parse them:
-//  delay(10);
-//}
-
 void prepareIds() {
   uint32_t chipId = ESP.getChipId();
   char uuid[64];
@@ -53,7 +39,7 @@ void startHttpServer()
         if (alexa_debug_vars) {
           Serial.println("Got on request");
         }
-                // turn on relay with voltage HIGH
+        // turn on relay with voltage HIGH
       }
 
       if (request.indexOf("<BinaryState>0</BinaryState>") > 0) {
@@ -61,7 +47,40 @@ void startHttpServer()
           Serial.println("Got off request");
         }
 
-                // turn on relay with voltage LOW
+        // turn on relay with voltage LOW
+      }
+    }
+    HTTP.send(200, "text/plain", "");
+  });
+
+  HTTP.on("/upnp/control/basicevent2", HTTP_POST,  []() {
+    if (alexa_debug_vars)
+    {
+      Serial.println("########## Responding to  /upnp/control/basicevent2 ... ##########");
+    }
+    String request = HTTP.arg(0);
+    if (alexa_debug_vars) {
+      Serial.print("request:");
+
+      Serial.println("------------start----on---------");
+      Serial.println(request);
+      Serial.println("------------end--------off-----");
+    }
+    if (request.indexOf("SetBinaryState") > 0 ) {
+      if (request.indexOf("<BinaryState>1</BinaryState>") > 0)
+      {
+        if (alexa_debug_vars) {
+          Serial.println("Got on request");
+        }
+        // turn on relay with voltage HIGH
+      }
+
+      if (request.indexOf("<BinaryState>0</BinaryState>") > 0) {
+        if (alexa_debug_vars) {
+          Serial.println("Got off request");
+        }
+
+        // turn on relay with voltage LOW
       }
     }
     HTTP.send(200, "text/plain", "");
@@ -72,33 +91,33 @@ void startHttpServer()
       Serial.println(" ########## Responding to eventservice.xml ... ########\n");
     }
 
-        String eventservice_xml = "<?scpd xmlns=\"urn:Belkin:service-1-0\"?>"
-                                  "<actionList>"
-                                  "<action>"
-                                  "<name>SetBinaryState</name>"
-                                  "<argumentList>"
-                                  "<argument>"
-                                  "<retval/>"
-                                  "<name>BinaryState</name>"
-                                  "<relatedStateVariable>BinaryState</relatedStateVariable>"
-                                  "<direction>in</direction>"
-                                  "</argument>"
-                                  "</argumentList>"
-                                  "<serviceStateTable>"
-                                  "<stateVariable sendEvents=\"yes\">"
-                                  "<name>BinaryState</name>"
-                                  "<dataType>Boolean</dataType>"
-                                  "<defaultValue>0</defaultValue>"
-                                  "</stateVariable>"
-                                  "<stateVariable sendEvents=\"yes\">"
-                                  "<name>level</name>"
-                                  "<dataType>string</dataType>"
-                                  "<defaultValue>0</defaultValue>"
-                                  "</stateVariable>"
-                                  "</serviceStateTable>"
-                                  "</action>"
-                                  "</scpd>\r\n"
-                                  "\r\n";
+    String eventservice_xml = "<?scpd xmlns=\"urn:Belkin:service-1-0\"?>"
+                              "<actionList>"
+                              "<action>"
+                              "<name>SetBinaryState</name>"
+                              "<argumentList>"
+                              "<argument>"
+                              "<retval/>"
+                              "<name>BinaryState</name>"
+                              "<relatedStateVariable>BinaryState</relatedStateVariable>"
+                              "<direction>in</direction>"
+                              "</argument>"
+                              "</argumentList>"
+                              "<serviceStateTable>"
+                              "<stateVariable sendEvents=\"yes\">"
+                              "<name>BinaryState</name>"
+                              "<dataType>Boolean</dataType>"
+                              "<defaultValue>0</defaultValue>"
+                              "</stateVariable>"
+                              "<stateVariable sendEvents=\"yes\">"
+                              "<name>level</name>"
+                              "<dataType>string</dataType>"
+                              "<defaultValue>0</defaultValue>"
+                              "</stateVariable>"
+                              "</serviceStateTable>"
+                              "</action>"
+                              "</scpd>\r\n"
+                              "\r\n";
 
 
 
@@ -123,7 +142,7 @@ void startHttpServer()
                        "<manufacturer>Belkin International Inc.</manufacturer>"
                        "<modelName>Socket</modelName>"
                        "<modelNumber>3.1415</modelNumber>"
-                       "<UDN>uuid:" + persistent_uuid + "</UDN>"
+                       "<UDN>uuid:" + persistent_uuid + "1" + "</UDN>"
                        "<serialNumber>221517K0101769</serialNumber>"
                        "<binaryState>0</binaryState>"
                        "<serviceList>"
@@ -135,17 +154,16 @@ void startHttpServer()
                        "<SCPDURL>/eventservice.xml</SCPDURL>"
                        "</service>"
                        "<service>"
-                    "<serviceType>urn:Belkin:service:metainfo:1</serviceType>"
-                    "<serviceId>urn:Belkin:serviceId:metainfo1</serviceId>"
-                    "<controlURL>/upnp/control/metainfo1</controlURL>"
-                    "<eventSubURL>/upnp/event/metainfo1</eventSubURL>"
-                    "<SCPDURL>/metainfoservice.xml</SCPDURL>"
-                    "</service>"
+                       "<serviceType>urn:Belkin:service:metainfo:1</serviceType>"
+                       "<serviceId>urn:Belkin:serviceId:metainfo1</serviceId>"
+                       "<controlURL>/upnp/control/metainfo1</controlURL>"
+                       "<eventSubURL>/upnp/event/metainfo1</eventSubURL>"
+                       "<SCPDURL>/metainfoservice.xml</SCPDURL>"
+                       "</service>"
                        "</serviceList>"
                        "</device>"
                        "</root>\r\n"
                        "\r\n";
-
     HTTP.send(200, "text/xml", setup_xml.c_str());
     if (alexa_debug_vars) {
       Serial.print("Sending :");
@@ -182,7 +200,7 @@ void respondToSearch() {
     "01-NLS: b9200ebb-736d-4b93-bf03-835149d13983\r\n"
     "SERVER: Unspecified, UPnP/1.0, Unspecified\r\n"
     "ST: urn:Belkin:device:**\r\n"
-    "USN: uuid:" + persistent_uuid + "::urn:Belkin:device:**\r\n"
+    "USN: uuid:" + persistent_uuid + "1" + "::urn:Belkin:device:**\r\n"
     "X-User-Agent: redsonic\r\n\r\n";
 
   UDP.beginPacket(UDP.remoteIP(), UDP.remotePort());
@@ -257,7 +275,7 @@ bool connectUDP()
   boolean state = false;
   Serial.println("Connecting to UDP");
 
-  if (UDP.beginMulticast(WiFi.localIP(), ipMulti, portMulti))
+  if (UDP.beginMulticast(WiFi.localIP(), ipMulti, portMulti1))
   {
     Serial.println("Connection successful");
     state = true;

@@ -92,7 +92,7 @@ bool alexa_debug_vars = true;
 // Some UDP / WeMo specific variables:
 WiFiUDP UDP;
 IPAddress ipMulti(239, 255, 255, 250);
-unsigned int portMulti = 1900; // local port to listen on
+unsigned int portMulti1 = 1900; // local port to listen on
 ESP8266WebServer HTTP(80);
 String serial; // Where we save the string of the UUID
 String persistent_uuid; // Where we save some socket info with the UUID
