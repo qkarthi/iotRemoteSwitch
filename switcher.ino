@@ -87,7 +87,6 @@ int d2_hw_switch_1_state;
 bool connectUDP();
 void startHttpServer();
 bool alexa_initiated = false;
-bool alexa_debug_vars = true;
 ///////////////////////////////////////////
 // Some UDP / WeMo specific variables:
 WiFiUDP UDP;

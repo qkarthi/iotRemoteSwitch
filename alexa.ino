@@ -14,33 +14,22 @@ void startHttpServer1()
 {
 
   HTTP1.on("/upnp/control/basicevent1", HTTP_POST,  []() {
-    if (alexa_debug_vars)
-    {
-      Serial.println("########## Responding to  /upnp/control/basicevent1 ... ##########");
-    }
     String request = HTTP1.arg(0);
-    if (alexa_debug_vars) {
-      Serial.print("request:");
-
-      Serial.println("------------start----on---------");
-      Serial.println(request);
-      Serial.println("------------end--------off-----");
-    }
     if (request.indexOf("SetBinaryState") > 0 ) {
       if (request.indexOf("<BinaryState>1</BinaryState>") > 0)
       {
-        if (alexa_debug_vars) {
-          Serial.println("Got on request");
-        }
         // turn on relay with voltage HIGH
+        d1_state  = HIGH;
+        d1_update_func(0, 0);
+        Blynk.virtualWrite(V_D1ManButPin, d1_state);
       }
 
       if (request.indexOf("<BinaryState>0</BinaryState>") > 0) {
-        if (alexa_debug_vars) {
-          Serial.println("Got off request");
-        }
 
         // turn on relay with voltage LOW
+        d1_state  = LOW;
+        d1_update_func(0, 0);
+        Blynk.virtualWrite(V_D1ManButPin, d1_state);
       }
     }
     HTTP1.send(200, "text/plain", "");
@@ -48,10 +37,6 @@ void startHttpServer1()
 
 
   HTTP1.on("/eventservice.xml", HTTP_GET, []() {
-    if (alexa_debug_vars) {
-      Serial.println(" ########## Responding to eventservice.xml ... ########\n");
-    }
-
     String eventservice_xml = "<?scpd xmlns=\"urn:Belkin:service-1-0\"?>"
                               "<actionList>"
                               "<action>"
@@ -83,15 +68,6 @@ void startHttpServer1()
   });
 
   HTTP1.on("/setup.xml", HTTP_GET, []() {
-    if (alexa_debug_vars) {
-      Serial.println(" ########## Responding to setup.xml ... ########\n");
-    }
-
-
-    IPAddress localIP = WiFi.localIP();
-    char s[16];
-    sprintf(s, "%d.%d.%d.%d", localIP[0], localIP[1], localIP[2], localIP[3]);
-
     String setup_xml = "<?xml version=\"1.0\"?>"
                        "<root>"
                        "<device>"
@@ -123,48 +99,29 @@ void startHttpServer1()
                        "</root>\r\n"
                        "\r\n";
     HTTP1.send(200, "text/xml", setup_xml.c_str());
-    if (alexa_debug_vars) {
-      Serial.print("Sending :");
-      Serial.println(setup_xml);
-    }
   });
-
   HTTP1.begin();
-  if (alexa_debug_vars) {
-    Serial.println("HTTP Server started ..");
-  }
 }
 void startHttpServer2()
 {
 
   HTTP2.on("/upnp/control/basicevent1", HTTP_POST,  []() {
-    if (alexa_debug_vars)
-    {
-      Serial.println("########## Responding to  /upnp/control/basicevent1 ... ##########");
-    }
     String request = HTTP2.arg(0);
-    if (alexa_debug_vars) {
-      Serial.print("request:");
-
-      Serial.println("------------start----on---------");
-      Serial.println(request);
-      Serial.println("------------end--------off-----");
-    }
     if (request.indexOf("SetBinaryState") > 0 ) {
       if (request.indexOf("<BinaryState>1</BinaryState>") > 0)
       {
-        if (alexa_debug_vars) {
-          Serial.println("Got on request");
-        }
         // turn on relay with voltage HIGH
+        d2_state  = HIGH;
+        d2_update_func(0, 0);
+        Blynk.virtualWrite(V_D2ManButPin, d2_state);
       }
 
       if (request.indexOf("<BinaryState>0</BinaryState>") > 0) {
-        if (alexa_debug_vars) {
-          Serial.println("Got off request");
-        }
 
         // turn on relay with voltage LOW
+        d2_state  = LOW;
+        d2_update_func(0, 0);
+        Blynk.virtualWrite(V_D2ManButPin, d2_state);
       }
     }
     HTTP2.send(200, "text/plain", "");
@@ -172,9 +129,6 @@ void startHttpServer2()
 
 
   HTTP2.on("/eventservice.xml", HTTP_GET, []() {
-    if (alexa_debug_vars) {
-      Serial.println(" ########## Responding to eventservice.xml ... ########\n");
-    }
 
     String eventservice_xml = "<?scpd xmlns=\"urn:Belkin:service-1-0\"?>"
                               "<actionList>"
@@ -207,14 +161,6 @@ void startHttpServer2()
   });
 
   HTTP2.on("/setup.xml", HTTP_GET, []() {
-    if (alexa_debug_vars) {
-      Serial.println(" ########## Responding to setup.xml ... ########\n");
-    }
-
-
-    IPAddress localIP = WiFi.localIP();
-    char s[16];
-    sprintf(s, "%d.%d.%d.%d", localIP[0], localIP[1], localIP[2], localIP[3]);
 
     String setup_xml = "<?xml version=\"1.0\"?>"
                        "<root>"
@@ -247,30 +193,14 @@ void startHttpServer2()
                        "</root>\r\n"
                        "\r\n";
     HTTP2.send(200, "text/xml", setup_xml.c_str());
-    if (alexa_debug_vars) {
-      Serial.print("Sending :");
-      Serial.println(setup_xml);
-    }
   });
 
   HTTP2.begin();
-  if (alexa_debug_vars) {
-    Serial.println("HTTP Server started ..");
-  }
 }
 void respondToSearch1() {
-  if (alexa_debug_vars) {
-    Serial.println("");
-    Serial.print("Sending response to ");
-    Serial.println(UDP.remoteIP());
-    Serial.print("Port : ");
-    Serial.println(UDP.remotePort());
-  }
-
   IPAddress localIP = WiFi.localIP();
   char s[16];
   sprintf(s, "%d.%d.%d.%d", localIP[0], localIP[1], localIP[2], localIP[3]);
-
   String response =
     "HTTP/1.1 200 OK\r\n"
     "CACHE-CONTROL: max-age=86400\r\n"
@@ -287,23 +217,11 @@ void respondToSearch1() {
   UDP.beginPacket(UDP.remoteIP(), UDP.remotePort());
   UDP.write(response.c_str());
   UDP.endPacket();
-  if (alexa_debug_vars) {
-    Serial.println("Response sent !");
-  }
 }
 void respondToSearch2() {
-  if (alexa_debug_vars) {
-    Serial.println("");
-    Serial.print("Sending response to ");
-    Serial.println(UDP.remoteIP());
-    Serial.print("Port : ");
-    Serial.println(UDP.remotePort());
-  }
-
   IPAddress localIP = WiFi.localIP();
   char s[16];
   sprintf(s, "%d.%d.%d.%d", localIP[0], localIP[1], localIP[2], localIP[3]);
-
   String response =
     "HTTP/1.1 200 OK\r\n"
     "CACHE-CONTROL: max-age=86400\r\n"
@@ -320,9 +238,6 @@ void respondToSearch2() {
   UDP.beginPacket(UDP.remoteIP(), UDP.remotePort());
   UDP.write(response.c_str());
   UDP.endPacket();
-  if (alexa_debug_vars) {
-    Serial.println("Response sent !");
-  }
 }
 
 /***********************************************
@@ -342,24 +257,6 @@ void parsePackets()
 {
   int packetSize = UDP.parsePacket();
   if (packetSize) {
-    if (alexa_debug_vars) {
-      Serial.println("");
-      Serial.print("Received packet of size ");
-      Serial.println(packetSize);
-      Serial.print("From ");
-      IPAddress remote = UDP.remoteIP();
-
-      for (int i = 0; i < 4; i++) {
-        Serial.print(remote[i], DEC);
-        if (i < 3) {
-          Serial.print(".");
-        }
-      }
-
-      Serial.print(", port ");
-      Serial.println(UDP.remotePort());
-    }
-
     int len = UDP.read(packetBuffer, 255);
 
     if (len > 0) {
@@ -367,14 +264,8 @@ void parsePackets()
     }
 
     String request = packetBuffer;
-    Serial.println("------------start-------------");
-    Serial.println(request);
-    Serial.println("------------end-------------");
     if (request.indexOf('M-SEARCH') > 0) {
       if (request.indexOf("urn:Belkin:device:**") > 0) {
-        if (alexa_debug_vars) {
-          Serial.println("Responding to search request ...");
-        }
         respondToSearch1();
         respondToSearch2();
       }
@@ -388,11 +279,8 @@ void parsePackets()
 bool connectUDP()
 {
   boolean state = false;
-  Serial.println("Connecting to UDP");
-
   if (UDP.beginMulticast(WiFi.localIP(), ipMulti, portMulti1))
   {
-    Serial.println("Connection successful");
     state = true;
   }
   else
