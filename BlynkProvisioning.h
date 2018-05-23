@@ -42,7 +42,7 @@ class Provisioning {
       if (configStore.flagConfig) {
         BlynkState::set(MODE_CONNECTING_NET);
       } else {
-        BlynkState::set(MODE_DUMB);
+        BlynkState::set(MODE_WAIT_CONFIG);
       }
     }
 

@@ -10,22 +10,15 @@ void prepareIds() {
   persistent_uuid = "Socket-1_0-" + serial;
 }
 
-void startHttpServer()
+void startHttpServer1()
 {
-  HTTP.on("/index.html", HTTP_GET, []()
-  {
-    if (alexa_debug_vars) {
-      Serial.println("Got Request index.html ...\n");
-    }
-    HTTP.send(200, "text/plain", "Hello World!");
-  });
 
-  HTTP.on("/upnp/control/basicevent1", HTTP_POST,  []() {
+  HTTP1.on("/upnp/control/basicevent1", HTTP_POST,  []() {
     if (alexa_debug_vars)
     {
       Serial.println("########## Responding to  /upnp/control/basicevent1 ... ##########");
     }
-    String request = HTTP.arg(0);
+    String request = HTTP1.arg(0);
     if (alexa_debug_vars) {
       Serial.print("request:");
 
@@ -50,43 +43,11 @@ void startHttpServer()
         // turn on relay with voltage LOW
       }
     }
-    HTTP.send(200, "text/plain", "");
+    HTTP1.send(200, "text/plain", "");
   });
 
-  HTTP.on("/upnp/control/basicevent2", HTTP_POST,  []() {
-    if (alexa_debug_vars)
-    {
-      Serial.println("########## Responding to  /upnp/control/basicevent2 ... ##########");
-    }
-    String request = HTTP.arg(0);
-    if (alexa_debug_vars) {
-      Serial.print("request:");
 
-      Serial.println("------------start----on---------");
-      Serial.println(request);
-      Serial.println("------------end--------off-----");
-    }
-    if (request.indexOf("SetBinaryState") > 0 ) {
-      if (request.indexOf("<BinaryState>1</BinaryState>") > 0)
-      {
-        if (alexa_debug_vars) {
-          Serial.println("Got on request");
-        }
-        // turn on relay with voltage HIGH
-      }
-
-      if (request.indexOf("<BinaryState>0</BinaryState>") > 0) {
-        if (alexa_debug_vars) {
-          Serial.println("Got off request");
-        }
-
-        // turn on relay with voltage LOW
-      }
-    }
-    HTTP.send(200, "text/plain", "");
-  });
-
-  HTTP.on("/eventservice.xml", HTTP_GET, []() {
+  HTTP1.on("/eventservice.xml", HTTP_GET, []() {
     if (alexa_debug_vars) {
       Serial.println(" ########## Responding to eventservice.xml ... ########\n");
     }
@@ -118,13 +79,10 @@ void startHttpServer()
                               "</action>"
                               "</scpd>\r\n"
                               "\r\n";
-
-
-
-    HTTP.send(200, "text/plain", eventservice_xml.c_str());
+    HTTP1.send(200, "text/plain", eventservice_xml.c_str());
   });
 
-  HTTP.on("/setup.xml", HTTP_GET, []() {
+  HTTP1.on("/setup.xml", HTTP_GET, []() {
     if (alexa_debug_vars) {
       Serial.println(" ########## Responding to setup.xml ... ########\n");
     }
@@ -164,20 +122,143 @@ void startHttpServer()
                        "</device>"
                        "</root>\r\n"
                        "\r\n";
-    HTTP.send(200, "text/xml", setup_xml.c_str());
+    HTTP1.send(200, "text/xml", setup_xml.c_str());
     if (alexa_debug_vars) {
       Serial.print("Sending :");
       Serial.println(setup_xml);
     }
   });
 
-  HTTP.begin();
+  HTTP1.begin();
   if (alexa_debug_vars) {
     Serial.println("HTTP Server started ..");
   }
 }
+void startHttpServer2()
+{
 
-void respondToSearch() {
+  HTTP2.on("/upnp/control/basicevent1", HTTP_POST,  []() {
+    if (alexa_debug_vars)
+    {
+      Serial.println("########## Responding to  /upnp/control/basicevent1 ... ##########");
+    }
+    String request = HTTP2.arg(0);
+    if (alexa_debug_vars) {
+      Serial.print("request:");
+
+      Serial.println("------------start----on---------");
+      Serial.println(request);
+      Serial.println("------------end--------off-----");
+    }
+    if (request.indexOf("SetBinaryState") > 0 ) {
+      if (request.indexOf("<BinaryState>1</BinaryState>") > 0)
+      {
+        if (alexa_debug_vars) {
+          Serial.println("Got on request");
+        }
+        // turn on relay with voltage HIGH
+      }
+
+      if (request.indexOf("<BinaryState>0</BinaryState>") > 0) {
+        if (alexa_debug_vars) {
+          Serial.println("Got off request");
+        }
+
+        // turn on relay with voltage LOW
+      }
+    }
+    HTTP2.send(200, "text/plain", "");
+  });
+
+
+  HTTP2.on("/eventservice.xml", HTTP_GET, []() {
+    if (alexa_debug_vars) {
+      Serial.println(" ########## Responding to eventservice.xml ... ########\n");
+    }
+
+    String eventservice_xml = "<?scpd xmlns=\"urn:Belkin:service-1-0\"?>"
+                              "<actionList>"
+                              "<action>"
+                              "<name>SetBinaryState</name>"
+                              "<argumentList>"
+                              "<argument>"
+                              "<retval/>"
+                              "<name>BinaryState</name>"
+                              "<relatedStateVariable>BinaryState</relatedStateVariable>"
+                              "<direction>in</direction>"
+                              "</argument>"
+                              "</argumentList>"
+                              "<serviceStateTable>"
+                              "<stateVariable sendEvents=\"yes\">"
+                              "<name>BinaryState</name>"
+                              "<dataType>Boolean</dataType>"
+                              "<defaultValue>0</defaultValue>"
+                              "</stateVariable>"
+                              "<stateVariable sendEvents=\"yes\">"
+                              "<name>level</name>"
+                              "<dataType>string</dataType>"
+                              "<defaultValue>0</defaultValue>"
+                              "</stateVariable>"
+                              "</serviceStateTable>"
+                              "</action>"
+                              "</scpd>\r\n"
+                              "\r\n";
+    HTTP2.send(200, "text/plain", eventservice_xml.c_str());
+  });
+
+  HTTP2.on("/setup.xml", HTTP_GET, []() {
+    if (alexa_debug_vars) {
+      Serial.println(" ########## Responding to setup.xml ... ########\n");
+    }
+
+
+    IPAddress localIP = WiFi.localIP();
+    char s[16];
+    sprintf(s, "%d.%d.%d.%d", localIP[0], localIP[1], localIP[2], localIP[3]);
+
+    String setup_xml = "<?xml version=\"1.0\"?>"
+                       "<root>"
+                       "<device>"
+                       "<deviceType>urn:Belkin:device:controllee:1</deviceType>"
+                       "<friendlyName>" +  String(configStore.device_2_name) + "</friendlyName>"
+                       "<manufacturer>Belkin International Inc.</manufacturer>"
+                       "<modelName>Socket</modelName>"
+                       "<modelNumber>3.1415</modelNumber>"
+                       "<UDN>uuid:" + persistent_uuid + "2" + "</UDN>"
+                       "<serialNumber>221517K0101769</serialNumber>"
+                       "<binaryState>0</binaryState>"
+                       "<serviceList>"
+                       "<service>"
+                       "<serviceType>urn:Belkin:service:basicevent:1</serviceType>"
+                       "<serviceId>urn:Belkin:serviceId:basicevent1</serviceId>"
+                       "<controlURL>/upnp/control/basicevent1</controlURL>"
+                       "<eventSubURL>/upnp/event/basicevent1</eventSubURL>"
+                       "<SCPDURL>/eventservice.xml</SCPDURL>"
+                       "</service>"
+                       "<service>"
+                       "<serviceType>urn:Belkin:service:metainfo:1</serviceType>"
+                       "<serviceId>urn:Belkin:serviceId:metainfo1</serviceId>"
+                       "<controlURL>/upnp/control/metainfo1</controlURL>"
+                       "<eventSubURL>/upnp/event/metainfo1</eventSubURL>"
+                       "<SCPDURL>/metainfoservice.xml</SCPDURL>"
+                       "</service>"
+                       "</serviceList>"
+                       "</device>"
+                       "</root>\r\n"
+                       "\r\n";
+    HTTP2.send(200, "text/xml", setup_xml.c_str());
+    if (alexa_debug_vars) {
+      Serial.print("Sending :");
+      Serial.println(setup_xml);
+    }
+  });
+
+  HTTP2.begin();
+  if (alexa_debug_vars) {
+    Serial.println("HTTP Server started ..");
+  }
+}
+void respondToSearch1() {
   if (alexa_debug_vars) {
     Serial.println("");
     Serial.print("Sending response to ");
@@ -195,7 +276,7 @@ void respondToSearch() {
     "CACHE-CONTROL: max-age=86400\r\n"
     "DATE: Tue, 14 Dec 2016 02:30:00 GMT\r\n"
     "EXT:\r\n"
-    "LOCATION: http://" + String(s) + ":80/setup.xml\r\n"
+    "LOCATION: http://" + String(s) + ":1001/setup.xml\r\n"
     "OPT: \"http://schemas.upnp.org/upnp/1/0/\"; ns=01\r\n"
     "01-NLS: b9200ebb-736d-4b93-bf03-835149d13983\r\n"
     "SERVER: Unspecified, UPnP/1.0, Unspecified\r\n"
@@ -210,7 +291,39 @@ void respondToSearch() {
     Serial.println("Response sent !");
   }
 }
+void respondToSearch2() {
+  if (alexa_debug_vars) {
+    Serial.println("");
+    Serial.print("Sending response to ");
+    Serial.println(UDP.remoteIP());
+    Serial.print("Port : ");
+    Serial.println(UDP.remotePort());
+  }
 
+  IPAddress localIP = WiFi.localIP();
+  char s[16];
+  sprintf(s, "%d.%d.%d.%d", localIP[0], localIP[1], localIP[2], localIP[3]);
+
+  String response =
+    "HTTP/1.1 200 OK\r\n"
+    "CACHE-CONTROL: max-age=86400\r\n"
+    "DATE: Tue, 14 Dec 2016 02:30:00 GMT\r\n"
+    "EXT:\r\n"
+    "LOCATION: http://" + String(s) + ":1002/setup.xml\r\n"
+    "OPT: \"http://schemas.upnp.org/upnp/1/0/\"; ns=01\r\n"
+    "01-NLS: b9200ebb-736d-4b93-bf03-835149d13983\r\n"
+    "SERVER: Unspecified, UPnP/1.0, Unspecified\r\n"
+    "ST: urn:Belkin:device:**\r\n"
+    "USN: uuid:" + persistent_uuid + "2" + "::urn:Belkin:device:**\r\n"
+    "X-User-Agent: redsonic\r\n\r\n";
+
+  UDP.beginPacket(UDP.remoteIP(), UDP.remotePort());
+  UDP.write(response.c_str());
+  UDP.endPacket();
+  if (alexa_debug_vars) {
+    Serial.println("Response sent !");
+  }
+}
 
 /***********************************************
     Connect to WiFi and UDP
@@ -220,7 +333,8 @@ void start_alexa()
 {
   bool udpConnected = connectUDP();   // Connect to UDP:
   if (udpConnected) {
-    startHttpServer(); // Start the HTTP Server
+    startHttpServer1(); // Start the HTTP Server
+    startHttpServer2(); // Start the HTTP Server
   }
 }
 
@@ -261,7 +375,8 @@ void parsePackets()
         if (alexa_debug_vars) {
           Serial.println("Responding to search request ...");
         }
-        respondToSearch();
+        respondToSearch1();
+        respondToSearch2();
       }
     }
   }

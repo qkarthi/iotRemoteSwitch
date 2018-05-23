@@ -93,7 +93,8 @@ bool alexa_debug_vars = true;
 WiFiUDP UDP;
 IPAddress ipMulti(239, 255, 255, 250);
 unsigned int portMulti1 = 1900; // local port to listen on
-ESP8266WebServer HTTP(80);
+ESP8266WebServer HTTP1(1001);
+ESP8266WebServer HTTP2(1002);
 String serial; // Where we save the string of the UUID
 String persistent_uuid; // Where we save some socket info with the UUID
 char packetBuffer[UDP_TX_PACKET_MAX_SIZE]; // Buffer to save incoming packets:
@@ -169,7 +170,10 @@ void loop() {
       start_alexa();
       alexa_initiated = 1;
     }
-    HTTP.handleClient();
+    
+    HTTP1.handleClient();
+    HTTP2.handleClient();
+    
     delay(1);
     parsePackets(); // If there are packets, we parse them:
     delay(10);
