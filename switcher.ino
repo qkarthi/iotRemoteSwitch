@@ -91,10 +91,11 @@ bool alexa_initiated = false;
 // Some UDP / WeMo specific variables:
 WiFiUDP UDP;
 IPAddress ipMulti(239, 255, 255, 250);
+int alx_port_d[3]={0,1001,1002};
+String serial;
 unsigned int portMulti1 = 1900; // local port to listen on
-ESP8266WebServer HTTP1(1001);
-ESP8266WebServer HTTP2(1002);
-String serial; // Where we save the string of the UUID
+ESP8266WebServer HTTP1(alx_port_d[1]);
+ESP8266WebServer HTTP2(alx_port_d[2]);
 String persistent_uuid; // Where we save some socket info with the UUID
 char packetBuffer[UDP_TX_PACKET_MAX_SIZE]; // Buffer to save incoming packets:
 

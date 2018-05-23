@@ -12,7 +12,6 @@ void prepareIds() {
 
 void startHttpServer1()
 {
-
   HTTP1.on("/upnp/control/basicevent1", HTTP_POST,  []() {
     String request = HTTP1.arg(0);
     if (request.indexOf("SetBinaryState") > 0 ) {
@@ -35,76 +34,17 @@ void startHttpServer1()
     HTTP1.send(200, "text/plain", "");
   });
 
-
   HTTP1.on("/eventservice.xml", HTTP_GET, []() {
-    String eventservice_xml = "<?scpd xmlns=\"urn:Belkin:service-1-0\"?>"
-                              "<actionList>"
-                              "<action>"
-                              "<name>SetBinaryState</name>"
-                              "<argumentList>"
-                              "<argument>"
-                              "<retval/>"
-                              "<name>BinaryState</name>"
-                              "<relatedStateVariable>BinaryState</relatedStateVariable>"
-                              "<direction>in</direction>"
-                              "</argument>"
-                              "</argumentList>"
-                              "<serviceStateTable>"
-                              "<stateVariable sendEvents=\"yes\">"
-                              "<name>BinaryState</name>"
-                              "<dataType>Boolean</dataType>"
-                              "<defaultValue>0</defaultValue>"
-                              "</stateVariable>"
-                              "<stateVariable sendEvents=\"yes\">"
-                              "<name>level</name>"
-                              "<dataType>string</dataType>"
-                              "<defaultValue>0</defaultValue>"
-                              "</stateVariable>"
-                              "</serviceStateTable>"
-                              "</action>"
-                              "</scpd>\r\n"
-                              "\r\n";
-    HTTP1.send(200, "text/plain", eventservice_xml.c_str());
+    HTTP1.send(200, "text/plain", xml_eventservice().c_str());
   });
 
   HTTP1.on("/setup.xml", HTTP_GET, []() {
-    String setup_xml = "<?xml version=\"1.0\"?>"
-                       "<root>"
-                       "<device>"
-                       "<deviceType>urn:Belkin:device:controllee:1</deviceType>"
-                       "<friendlyName>" +  String(configStore.device_1_name) + "</friendlyName>"
-                       "<manufacturer>Belkin International Inc.</manufacturer>"
-                       "<modelName>Socket</modelName>"
-                       "<modelNumber>3.1415</modelNumber>"
-                       "<UDN>uuid:" + persistent_uuid + "1" + "</UDN>"
-                       "<serialNumber>221517K0101769</serialNumber>"
-                       "<binaryState>0</binaryState>"
-                       "<serviceList>"
-                       "<service>"
-                       "<serviceType>urn:Belkin:service:basicevent:1</serviceType>"
-                       "<serviceId>urn:Belkin:serviceId:basicevent1</serviceId>"
-                       "<controlURL>/upnp/control/basicevent1</controlURL>"
-                       "<eventSubURL>/upnp/event/basicevent1</eventSubURL>"
-                       "<SCPDURL>/eventservice.xml</SCPDURL>"
-                       "</service>"
-                       "<service>"
-                       "<serviceType>urn:Belkin:service:metainfo:1</serviceType>"
-                       "<serviceId>urn:Belkin:serviceId:metainfo1</serviceId>"
-                       "<controlURL>/upnp/control/metainfo1</controlURL>"
-                       "<eventSubURL>/upnp/event/metainfo1</eventSubURL>"
-                       "<SCPDURL>/metainfoservice.xml</SCPDURL>"
-                       "</service>"
-                       "</serviceList>"
-                       "</device>"
-                       "</root>\r\n"
-                       "\r\n";
-    HTTP1.send(200, "text/xml", setup_xml.c_str());
+    HTTP1.send(200, "text/xml", xml_setup(1, persistent_uuid, String(configStore.device_1_name)).c_str());
   });
   HTTP1.begin();
 }
 void startHttpServer2()
 {
-
   HTTP2.on("/upnp/control/basicevent1", HTTP_POST,  []() {
     String request = HTTP2.arg(0);
     if (request.indexOf("SetBinaryState") > 0 ) {
@@ -127,116 +67,23 @@ void startHttpServer2()
     HTTP2.send(200, "text/plain", "");
   });
 
-
   HTTP2.on("/eventservice.xml", HTTP_GET, []() {
-
-    String eventservice_xml = "<?scpd xmlns=\"urn:Belkin:service-1-0\"?>"
-                              "<actionList>"
-                              "<action>"
-                              "<name>SetBinaryState</name>"
-                              "<argumentList>"
-                              "<argument>"
-                              "<retval/>"
-                              "<name>BinaryState</name>"
-                              "<relatedStateVariable>BinaryState</relatedStateVariable>"
-                              "<direction>in</direction>"
-                              "</argument>"
-                              "</argumentList>"
-                              "<serviceStateTable>"
-                              "<stateVariable sendEvents=\"yes\">"
-                              "<name>BinaryState</name>"
-                              "<dataType>Boolean</dataType>"
-                              "<defaultValue>0</defaultValue>"
-                              "</stateVariable>"
-                              "<stateVariable sendEvents=\"yes\">"
-                              "<name>level</name>"
-                              "<dataType>string</dataType>"
-                              "<defaultValue>0</defaultValue>"
-                              "</stateVariable>"
-                              "</serviceStateTable>"
-                              "</action>"
-                              "</scpd>\r\n"
-                              "\r\n";
-    HTTP2.send(200, "text/plain", eventservice_xml.c_str());
+    HTTP2.send(200, "text/plain", xml_eventservice().c_str());
   });
 
   HTTP2.on("/setup.xml", HTTP_GET, []() {
-
-    String setup_xml = "<?xml version=\"1.0\"?>"
-                       "<root>"
-                       "<device>"
-                       "<deviceType>urn:Belkin:device:controllee:1</deviceType>"
-                       "<friendlyName>" +  String(configStore.device_2_name) + "</friendlyName>"
-                       "<manufacturer>Belkin International Inc.</manufacturer>"
-                       "<modelName>Socket</modelName>"
-                       "<modelNumber>3.1415</modelNumber>"
-                       "<UDN>uuid:" + persistent_uuid + "2" + "</UDN>"
-                       "<serialNumber>221517K0101769</serialNumber>"
-                       "<binaryState>0</binaryState>"
-                       "<serviceList>"
-                       "<service>"
-                       "<serviceType>urn:Belkin:service:basicevent:1</serviceType>"
-                       "<serviceId>urn:Belkin:serviceId:basicevent1</serviceId>"
-                       "<controlURL>/upnp/control/basicevent1</controlURL>"
-                       "<eventSubURL>/upnp/event/basicevent1</eventSubURL>"
-                       "<SCPDURL>/eventservice.xml</SCPDURL>"
-                       "</service>"
-                       "<service>"
-                       "<serviceType>urn:Belkin:service:metainfo:1</serviceType>"
-                       "<serviceId>urn:Belkin:serviceId:metainfo1</serviceId>"
-                       "<controlURL>/upnp/control/metainfo1</controlURL>"
-                       "<eventSubURL>/upnp/event/metainfo1</eventSubURL>"
-                       "<SCPDURL>/metainfoservice.xml</SCPDURL>"
-                       "</service>"
-                       "</serviceList>"
-                       "</device>"
-                       "</root>\r\n"
-                       "\r\n";
-    HTTP2.send(200, "text/xml", setup_xml.c_str());
+    HTTP2.send(200, "text/xml", xml_setup(2, persistent_uuid, String(configStore.device_2_name)).c_str());
   });
-
   HTTP2.begin();
 }
 void respondToSearch1() {
-  IPAddress localIP = WiFi.localIP();
-  char s[16];
-  sprintf(s, "%d.%d.%d.%d", localIP[0], localIP[1], localIP[2], localIP[3]);
-  String response =
-    "HTTP/1.1 200 OK\r\n"
-    "CACHE-CONTROL: max-age=86400\r\n"
-    "DATE: Tue, 14 Dec 2016 02:30:00 GMT\r\n"
-    "EXT:\r\n"
-    "LOCATION: http://" + String(s) + ":1001/setup.xml\r\n"
-    "OPT: \"http://schemas.upnp.org/upnp/1/0/\"; ns=01\r\n"
-    "01-NLS: b9200ebb-736d-4b93-bf03-835149d13983\r\n"
-    "SERVER: Unspecified, UPnP/1.0, Unspecified\r\n"
-    "ST: urn:Belkin:device:**\r\n"
-    "USN: uuid:" + persistent_uuid + "1" + "::urn:Belkin:device:**\r\n"
-    "X-User-Agent: redsonic\r\n\r\n";
-
   UDP.beginPacket(UDP.remoteIP(), UDP.remotePort());
-  UDP.write(response.c_str());
+  UDP.write(alexa_call_responder(1,alx_port_d[1],persistent_uuid).c_str());
   UDP.endPacket();
 }
 void respondToSearch2() {
-  IPAddress localIP = WiFi.localIP();
-  char s[16];
-  sprintf(s, "%d.%d.%d.%d", localIP[0], localIP[1], localIP[2], localIP[3]);
-  String response =
-    "HTTP/1.1 200 OK\r\n"
-    "CACHE-CONTROL: max-age=86400\r\n"
-    "DATE: Tue, 14 Dec 2016 02:30:00 GMT\r\n"
-    "EXT:\r\n"
-    "LOCATION: http://" + String(s) + ":1002/setup.xml\r\n"
-    "OPT: \"http://schemas.upnp.org/upnp/1/0/\"; ns=01\r\n"
-    "01-NLS: b9200ebb-736d-4b93-bf03-835149d13983\r\n"
-    "SERVER: Unspecified, UPnP/1.0, Unspecified\r\n"
-    "ST: urn:Belkin:device:**\r\n"
-    "USN: uuid:" + persistent_uuid + "2" + "::urn:Belkin:device:**\r\n"
-    "X-User-Agent: redsonic\r\n\r\n";
-
   UDP.beginPacket(UDP.remoteIP(), UDP.remotePort());
-  UDP.write(response.c_str());
+  UDP.write(alexa_call_responder(2,alx_port_d[2], persistent_uuid).c_str());
   UDP.endPacket();
 }
 
@@ -288,4 +135,90 @@ bool connectUDP()
     Serial.println("Connection failed");
   }
   return state;
+}
+
+
+String xml_setup(int dev_id, String persis_uuid, String dev_call_name) {
+  String setup_xml = "<?xml version=\"1.0\"?>"
+                     "<root>"
+                     "<device>"
+                     "<deviceType>urn:Belkin:device:controllee:1</deviceType>"
+                     "<friendlyName>" +  dev_call_name + "</friendlyName>"
+                     "<manufacturer>Belkin International Inc.</manufacturer>"
+                     "<modelName>Socket</modelName>"
+                     "<modelNumber>3.1415</modelNumber>"
+                     "<UDN>uuid:" + persis_uuid + String(dev_id) + "</UDN>"
+                     "<serialNumber>221517K0101769</serialNumber>"
+                     "<binaryState>0</binaryState>"
+                     "<serviceList>"
+                     "<service>"
+                     "<serviceType>urn:Belkin:service:basicevent:1</serviceType>"
+                     "<serviceId>urn:Belkin:serviceId:basicevent1</serviceId>"
+                     "<controlURL>/upnp/control/basicevent1</controlURL>"
+                     "<eventSubURL>/upnp/event/basicevent1</eventSubURL>"
+                     "<SCPDURL>/eventservice.xml</SCPDURL>"
+                     "</service>"
+                     "<service>"
+                     "<serviceType>urn:Belkin:service:metainfo:1</serviceType>"
+                     "<serviceId>urn:Belkin:serviceId:metainfo1</serviceId>"
+                     "<controlURL>/upnp/control/metainfo1</controlURL>"
+                     "<eventSubURL>/upnp/event/metainfo1</eventSubURL>"
+                     "<SCPDURL>/metainfoservice.xml</SCPDURL>"
+                     "</service>"
+                     "</serviceList>"
+                     "</device>"
+                     "</root>\r\n"
+                     "\r\n";
+
+  return setup_xml;
+}
+
+String xml_eventservice() {
+  String eventservice_xml = "<?scpd xmlns=\"urn:Belkin:service-1-0\"?>"
+                            "<actionList>"
+                            "<action>"
+                            "<name>SetBinaryState</name>"
+                            "<argumentList>"
+                            "<argument>"
+                            "<retval/>"
+                            "<name>BinaryState</name>"
+                            "<relatedStateVariable>BinaryState</relatedStateVariable>"
+                            "<direction>in</direction>"
+                            "</argument>"
+                            "</argumentList>"
+                            "<serviceStateTable>"
+                            "<stateVariable sendEvents=\"yes\">"
+                            "<name>BinaryState</name>"
+                            "<dataType>Boolean</dataType>"
+                            "<defaultValue>0</defaultValue>"
+                            "</stateVariable>"
+                            "<stateVariable sendEvents=\"yes\">"
+                            "<name>level</name>"
+                            "<dataType>string</dataType>"
+                            "<defaultValue>0</defaultValue>"
+                            "</stateVariable>"
+                            "</serviceStateTable>"
+                            "</action>"
+                            "</scpd>\r\n"
+                            "\r\n";
+  return eventservice_xml;
+}
+
+String alexa_call_responder(int dev_id,int port,String persis_uuid){
+   IPAddress localIP = WiFi.localIP();
+  char s[16];
+  sprintf(s, "%d.%d.%d.%d", localIP[0], localIP[1], localIP[2], localIP[3]);
+  String response =
+    "HTTP/1.1 200 OK\r\n"
+    "CACHE-CONTROL: max-age=86400\r\n"
+    "DATE: Tue, 14 Dec 2016 02:30:00 GMT\r\n"
+    "EXT:\r\n"
+    "LOCATION: http://" + String(s) + ":"+String(port)+"/setup.xml\r\n"
+    "OPT: \"http://schemas.upnp.org/upnp/1/0/\"; ns=01\r\n"
+    "01-NLS: b9200ebb-736d-4b93-bf03-835149d13983\r\n"
+    "SERVER: Unspecified, UPnP/1.0, Unspecified\r\n"
+    "ST: urn:Belkin:device:**\r\n"
+    "USN: uuid:" + persis_uuid + String(dev_id) + "::urn:Belkin:device:**\r\n"
+    "X-User-Agent: redsonic\r\n\r\n";
+    return response;
 }
