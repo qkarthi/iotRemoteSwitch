@@ -1,13 +1,20 @@
 void prepareIds() {
-  uint32_t chipId = ESP.getChipId();
   char uuid[64];
-  sprintf_P(uuid, PSTR("38323636-4558-4dda-9188-cda0e6%02x%02x%02x"),
-            (uint16_t) ((chipId >> 16) & 0xff),
-            (uint16_t) ((chipId >>  8) & 0xff),
-            (uint16_t)   chipId        & 0xff);
-
+  unsigned long chip_id = ESP.getChipId();
+//  sprintf_P(uuid, PSTR("38323636-4558-4dda-9188-cda0e6%02x%02x%02x"),
+//            (uint16_t) ((chipId >> 16) & 0xff),
+//            (uint16_t) ((chipId >>  8) & 0xff),
+//            (uint16_t)   chipId        & 0xff);
+            
+  snprintf_P(uuid, sizeof(uuid), PSTR("444556%06X%02X\0"), chip_id, 1); // "DEV" + CHIPID + DEV_ID
   serial = String(uuid);
+   
   persistent_uuid = "Socket-1_0-" + serial;
+  Serial.println(serial);
+   char serialnum[15];
+    sprintf(serialnum, "221703K0%06X\0", chip_id); // "221703K0" + CHIPID
+    serialn=strdup(serialnum);
+    Serial.println( serialn);
 }
 
 void startHttpServer1()
@@ -39,7 +46,7 @@ void startHttpServer1()
   });
 
   HTTP1.on("/setup.xml", HTTP_GET, []() {
-    HTTP1.send(200, "text/xml", xml_setup(1, persistent_uuid, String(configStore.device_1_name)).c_str());
+    HTTP1.send(200, "text/xml", xml_setup(1, persistent_uuid, String(configStore.device_1_name).c_str() , serialn));
   });
   HTTP1.begin();
 }
@@ -72,7 +79,7 @@ void startHttpServer2()
   });
 
   HTTP2.on("/setup.xml", HTTP_GET, []() {
-    HTTP2.send(200, "text/xml", xml_setup(2, persistent_uuid, String(configStore.device_2_name)).c_str());
+    HTTP2.send(200, "text/xml", xml_setup(2, persistent_uuid, String(configStore.device_2_name).c_str() , serialn));
   });
   HTTP2.begin();
 }
@@ -137,8 +144,9 @@ bool connectUDP()
   return state;
 }
 
+//"<serialNumber>221517K0101769</serialNumber>"
 
-String xml_setup(int dev_id, String persis_uuid, String dev_call_name) {
+String xml_setup(int dev_id, String persis_uuid, String dev_call_name,String serial_number) {
   String setup_xml = "<?xml version=\"1.0\"?>"
                      "<root>"
                      "<device>"
@@ -148,7 +156,7 @@ String xml_setup(int dev_id, String persis_uuid, String dev_call_name) {
                      "<modelName>Socket</modelName>"
                      "<modelNumber>3.1415</modelNumber>"
                      "<UDN>uuid:" + persis_uuid + String(dev_id) + "</UDN>"
-                     "<serialNumber>221517K0101769</serialNumber>"
+                     "<serialNumber>"+serial_number+"</serialNumber>"
                      "<binaryState>0</binaryState>"
                      "<serviceList>"
                      "<service>"

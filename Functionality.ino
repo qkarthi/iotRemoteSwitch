@@ -9,7 +9,7 @@ BLYNK_CONNECTED() {
     DFConfig = false;
     d1_hw_switch_1_state = digitalRead(d1_hw_switch_pin_1); // getting the state of hardware device 1 switch
     d2_hw_switch_1_state = digitalRead(d2_hw_switch_pin_1); // getting the state of hardware device 2 switch
-    
+
   }
 
   if (d1_state)
@@ -42,6 +42,14 @@ BLYNK_WRITE(V6) // for upnp
 {
   configStore.upnp_vars = param.asInt();
   config_save();
+  if (!configStore.upnp_vars) {
+    UDP.stop();
+    HTTP1.stop();
+    HTTP2.stop();
+  }else{
+    alexa_initiated=false;
+  }
+  Serial.println(configStore.upnp_vars);
 }
 BLYNK_WRITE(V11) // manual button for d1
 {

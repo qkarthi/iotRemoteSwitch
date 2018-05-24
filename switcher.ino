@@ -91,8 +91,9 @@ bool alexa_initiated = false;
 // Some UDP / WeMo specific variables:
 WiFiUDP UDP;
 IPAddress ipMulti(239, 255, 255, 250);
-int alx_port_d[3]={0,1001,1002};
-String serial;
+int alx_port_d[3] = {0, 1001, 1002};
+String serial,serialn;
+
 unsigned int portMulti1 = 1900; // local port to listen on
 ESP8266WebServer HTTP1(alx_port_d[1]);
 ESP8266WebServer HTTP2(alx_port_d[2]);
@@ -148,6 +149,8 @@ void setup() {
 
   upd_equipment_detail_timer.setInterval(10000, upd_equipment_detail_func);
 
+  Serial.println(String(WiFi.macAddress()));
+  prepareIds() ;
 }
 
 void loop() {
@@ -161,22 +164,24 @@ void loop() {
     scheduler_1_timer.run();
     scheduler_2_timer.run();
 
-    upd_equipment_detail_timer.run();
-
     conn_maint.run();
   }
   if (BlynkState::is(MODE_RUNNING) ) {
-    if (!alexa_initiated) {
-      start_alexa();
-      alexa_initiated = 1;
+    upd_equipment_detail_timer.run();
+
+    if (configStore.upnp_vars) {
+      if (!alexa_initiated) {
+        start_alexa();
+        alexa_initiated = 1;
+      }
+      HTTP1.handleClient();
+      HTTP2.handleClient();
+
+      delay(1);
+      parsePackets(); // If there are packets, we parse them:
+      delay(10);
     }
-    
-    HTTP1.handleClient();
-    HTTP2.handleClient();
-    
-    delay(1);
-    parsePackets(); // If there are packets, we parse them:
-    delay(10);
+
   }
   CoR_PollCounterFunc();
 }
