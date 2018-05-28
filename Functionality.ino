@@ -36,6 +36,7 @@ BLYNK_CONNECTED() {
   Blynk.syncVirtual(V71);
   Blynk.syncVirtual(V72);
   Blynk.syncVirtual(V6);
+    Blynk.syncVirtual(V7);
   comb_Dstatus();
 }
 BLYNK_WRITE(V6) // for upnp
@@ -60,6 +61,11 @@ BLYNK_WRITE(V12) // manual button for d2
 {
   d2_state  = param.asInt();
   d2_update_func(0, 0);
+}
+
+BLYNK_WRITE(V7) // manual button for D2
+{
+ Serial.println(param.asStr());
 }
 ////////////////////////////////////////////////////////
 BLYNK_WRITE(V99) // terminal widget
@@ -243,15 +249,15 @@ void con_maint_func() {
   }
 }
 //////////////////////////////////
-void comb_Dstatus() {
+ void comb_Dstatus() {
   if ((d1_state == LOW) && (d2_state == LOW)) {
-    Blynk.virtualWrite(V_DStaStr, "🔴🔴" ) ;
+ Blynk.virtualWrite(V_DStaStr,lightOff_str+lightOff_str) ;
   } else if ((d1_state == LOW) && (d2_state == HIGH)) {
-    Blynk.virtualWrite(V_DStaStr, "🔴💡" ) ;
+ Blynk.virtualWrite(V_DStaStr,lightOff_str+lightOn_str) ;
   } else if ((d1_state == HIGH) && (d2_state == LOW)) {
-    Blynk.virtualWrite(V_DStaStr, "💡🔴" ) ;
+ Blynk.virtualWrite(V_DStaStr,lightOn_str+lightOff_str) ;
   } else if ((d1_state == HIGH) && (d2_state == HIGH)) {
-    Blynk.virtualWrite(V_DStaStr, "💡💡" ) ;
+ Blynk.virtualWrite(V_DStaStr,lightOn_str+lightOn_str) ;
   }
 }
 //////////////////////////////////

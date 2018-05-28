@@ -21,6 +21,9 @@ BlynkTimer  scheduler_1_timer, scheduler_2_timer;
 //////////////////////////////////////////////////////
 String  client_id;
 String TermString, TermCharOne, TermCharRest, TermTimeStr;
+
+String lightOn_str = "\xF0\x9F\x92\xA1";
+String lightOff_str = "\xF0\x9F\x94\xB4";
 //////////////////////////////////////////////////////
 
 int scheduler_1_var_1;
@@ -95,6 +98,7 @@ int alx_port_d[3] = {0, 1001, 1002};
 String serial,serialn;
 
 unsigned int portMulti1 = 1900; // local port to listen on
+
 ESP8266WebServer HTTP1(alx_port_d[1]);
 ESP8266WebServer HTTP2(alx_port_d[2]);
 String persistent_uuid; // Where we save some socket info with the UUID
