@@ -1,20 +1,20 @@
 void prepareIds() {
   char uuid[64];
   unsigned long chip_id = ESP.getChipId();
-//  sprintf_P(uuid, PSTR("38323636-4558-4dda-9188-cda0e6%02x%02x%02x"),
-//            (uint16_t) ((chipId >> 16) & 0xff),
-//            (uint16_t) ((chipId >>  8) & 0xff),
-//            (uint16_t)   chipId        & 0xff);
-            
+  //  sprintf_P(uuid, PSTR("38323636-4558-4dda-9188-cda0e6%02x%02x%02x"),
+  //            (uint16_t) ((chipId >> 16) & 0xff),
+  //            (uint16_t) ((chipId >>  8) & 0xff),
+  //            (uint16_t)   chipId        & 0xff);
+
   snprintf_P(uuid, sizeof(uuid), PSTR("444556%06X%02X\0"), chip_id, 1); // "DEV" + CHIPID + DEV_ID
   serial = String(uuid);
-   
+
   persistent_uuid = "Socket-1_0-" + serial;
   Serial.println(serial);
-   char serialnum[15];
-    sprintf(serialnum, "221703K0%06X\0", chip_id); // "221703K0" + CHIPID
-    serialn=strdup(serialnum);
-    Serial.println( serialn);
+  char serialnum[15];
+  sprintf(serialnum, "221703K0%06X\0", chip_id); // "221703K0" + CHIPID
+  serialn = strdup(serialnum);
+  Serial.println( serialn);
 }
 
 void startHttpServer1()
@@ -85,12 +85,12 @@ void startHttpServer2()
 }
 void respondToSearch1() {
   UDP.beginPacket(UDP.remoteIP(), UDP.remotePort());
-  UDP.write(alexa_call_responder(1,alx_port_d[1],persistent_uuid).c_str());
+  UDP.write(alexa_call_responder(1, alx_port_d[1], persistent_uuid).c_str());
   UDP.endPacket();
 }
 void respondToSearch2() {
   UDP.beginPacket(UDP.remoteIP(), UDP.remotePort());
-  UDP.write(alexa_call_responder(2,alx_port_d[2], persistent_uuid).c_str());
+  UDP.write(alexa_call_responder(2, alx_port_d[2], persistent_uuid).c_str());
   UDP.endPacket();
 }
 
@@ -146,7 +146,7 @@ bool connectUDP()
 
 //"<serialNumber>221517K0101769</serialNumber>"
 
-String xml_setup(int dev_id, String persis_uuid, String dev_call_name,String serial_number) {
+String xml_setup(int dev_id, String persis_uuid, String dev_call_name, String serial_number) {
   String setup_xml = "<?xml version=\"1.0\"?>"
                      "<root>"
                      "<device>"
@@ -156,7 +156,7 @@ String xml_setup(int dev_id, String persis_uuid, String dev_call_name,String ser
                      "<modelName>Socket</modelName>"
                      "<modelNumber>3.1415</modelNumber>"
                      "<UDN>uuid:" + persis_uuid + String(dev_id) + "</UDN>"
-                     "<serialNumber>"+serial_number+"</serialNumber>"
+                     "<serialNumber>" + serial_number + "</serialNumber>"
                      "<binaryState>0</binaryState>"
                      "<serviceList>"
                      "<service>"
@@ -172,6 +172,20 @@ String xml_setup(int dev_id, String persis_uuid, String dev_call_name,String ser
                      "<controlURL>/upnp/control/metainfo1</controlURL>"
                      "<eventSubURL>/upnp/event/metainfo1</eventSubURL>"
                      "<SCPDURL>/metainfoservice.xml</SCPDURL>"
+                     "</service>"
+                     "<service>"
+                     "<serviceType>urn:Belkin:service:remoteaccess:1</serviceType>"
+                     "<serviceId>urn:Belkin:serviceId:remoteaccess1</serviceId>"
+                     "<controlURL>/upnp/control/remoteaccess1</controlURL>"
+                     "<eventSubURL>/upnp/event/remoteaccess1</eventSubURL>"
+                     "<SCPDURL>/remoteaccess.xml</SCPDURL>"
+                     "</service>"
+                     "<service>"
+                     "<serviceType>urn:Belkin:service:deviceinfo:1</serviceType>"
+                     "<serviceId>urn:Belkin:serviceId:deviceinfo1 </serviceId>"
+                     "<controlURL>/upnp/control/deviceinfo1</controlURL>"
+                     "<eventSubURL>/upnp/event/deviceinfo1</eventSubURL>"
+                     "<SCPDURL>/deviceinfoservice.xml</SCPDURL>"
                      "</service>"
                      "</serviceList>"
                      "</device>"
@@ -212,8 +226,8 @@ String xml_eventservice() {
   return eventservice_xml;
 }
 
-String alexa_call_responder(int dev_id,int port,String persis_uuid){
-   IPAddress localIP = WiFi.localIP();
+String alexa_call_responder(int dev_id, int port, String persis_uuid) {
+  IPAddress localIP = WiFi.localIP();
   char s[16];
   sprintf(s, "%d.%d.%d.%d", localIP[0], localIP[1], localIP[2], localIP[3]);
   String response =
@@ -221,12 +235,12 @@ String alexa_call_responder(int dev_id,int port,String persis_uuid){
     "CACHE-CONTROL: max-age=86400\r\n"
     "DATE: Tue, 14 Dec 2016 02:30:00 GMT\r\n"
     "EXT:\r\n"
-    "LOCATION: http://" + String(s) + ":"+String(port)+"/setup.xml\r\n"
+    "LOCATION: http://" + String(s) + ":" + String(port) + "/setup.xml\r\n"
     "OPT: \"http://schemas.upnp.org/upnp/1/0/\"; ns=01\r\n"
     "01-NLS: b9200ebb-736d-4b93-bf03-835149d13983\r\n"
     "SERVER: Unspecified, UPnP/1.0, Unspecified\r\n"
     "ST: urn:Belkin:device:**\r\n"
     "USN: uuid:" + persis_uuid + String(dev_id) + "::urn:Belkin:device:**\r\n"
     "X-User-Agent: redsonic\r\n\r\n";
-    return response;
+  return response;
 }

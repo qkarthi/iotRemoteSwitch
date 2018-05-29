@@ -36,7 +36,7 @@ BLYNK_CONNECTED() {
   Blynk.syncVirtual(V71);
   Blynk.syncVirtual(V72);
   Blynk.syncVirtual(V6);
-    Blynk.syncVirtual(V7);
+  Blynk.syncVirtual(V7);
   comb_Dstatus();
 }
 BLYNK_WRITE(V6) // for upnp
@@ -47,8 +47,8 @@ BLYNK_WRITE(V6) // for upnp
     UDP.stop();
     HTTP1.stop();
     HTTP2.stop();
-  }else{
-    alexa_initiated=false;
+  } else {
+    alexa_initiated = false;
   }
   Serial.println(configStore.upnp_vars);
 }
@@ -65,7 +65,19 @@ BLYNK_WRITE(V12) // manual button for d2
 
 BLYNK_WRITE(V7) // manual button for D2
 {
- Serial.println(param.asStr());
+  CopyString(param.asStr(), configStore.device_1_name);
+  config_save();// call the function inorder to save the eeprom data of maodified records
+  Blynk.setProperty(V_D1ManButPin, "label",  configStore.device_1_name);
+  Blynk.setProperty(V_DevSelector1, "labels", configStore.device_1_name, configStore.device_2_name);
+  Blynk.setProperty(V_DevSelector2, "labels", configStore.device_1_name, configStore.device_2_name);
+}
+BLYNK_WRITE(V8) // manual button for D2
+{
+  CopyString(param.asStr(), configStore.device_2_name);
+  config_save();// call the function inorder to save the eeprom data of maodified records
+  Blynk.setProperty(V_D2ManButPin, "label",  configStore.device_2_name);
+  Blynk.setProperty(V_DevSelector1, "labels", configStore.device_1_name, configStore.device_2_name);
+  Blynk.setProperty(V_DevSelector2, "labels", configStore.device_1_name, configStore.device_2_name);
 }
 ////////////////////////////////////////////////////////
 BLYNK_WRITE(V99) // terminal widget
@@ -249,15 +261,15 @@ void con_maint_func() {
   }
 }
 //////////////////////////////////
- void comb_Dstatus() {
+void comb_Dstatus() {
   if ((d1_state == LOW) && (d2_state == LOW)) {
- Blynk.virtualWrite(V_DStaStr,lightOff_str+lightOff_str) ;
+    Blynk.virtualWrite(V_DStaStr, lightOff_str + lightOff_str) ;
   } else if ((d1_state == LOW) && (d2_state == HIGH)) {
- Blynk.virtualWrite(V_DStaStr,lightOff_str+lightOn_str) ;
+    Blynk.virtualWrite(V_DStaStr, lightOff_str + lightOn_str) ;
   } else if ((d1_state == HIGH) && (d2_state == LOW)) {
- Blynk.virtualWrite(V_DStaStr,lightOn_str+lightOff_str) ;
+    Blynk.virtualWrite(V_DStaStr, lightOn_str + lightOff_str) ;
   } else if ((d1_state == HIGH) && (d2_state == HIGH)) {
- Blynk.virtualWrite(V_DStaStr,lightOn_str+lightOn_str) ;
+    Blynk.virtualWrite(V_DStaStr, lightOn_str + lightOn_str) ;
   }
 }
 //////////////////////////////////
