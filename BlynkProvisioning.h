@@ -41,8 +41,12 @@ class Provisioning {
 
       if (configStore.flagConfig) {
         BlynkState::set(MODE_CONNECTING_NET);
+        
+        DEBUG_PRINT("INFO - connecting mode initiated at beginning - config flag");
       } else {
         BlynkState::set(MODE_DUMB);
+        
+        DEBUG_PRINT("INFO - dump mode initiated at beginning - config flag");
       }
     }
 

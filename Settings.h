@@ -22,7 +22,7 @@
 #define PRODUCT_SHORTCODE            "iotics/switcher/io_sw_2d_v_1_0"               //This will be a uniquename without any spaces.
 #define BOARD_ENV                    "development"                                  //Product environment should be development or production.
 #define OTA_URL                      "http://iotics-c-firmware.s3.amazonaws.com"    //please check it if OTA not works.
-#define CURRENT_FIRMWARE             "io_sw_2d_v_1_0_3_25_05_2018"                //Firware version will start from v.0.1 
+#define CURRENT_FIRMWARE             "io_sw_2d_v_1_0_3_11_06_2018"                //Firware version will start from v.0.1 
 /*
    Advanced options
 */

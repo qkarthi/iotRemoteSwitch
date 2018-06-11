@@ -15,6 +15,7 @@ void prepareIds() {
   sprintf(serialnum, "221703K0%06X\0", chip_id); // "221703K0" + CHIPID
   serialn = strdup(serialnum);
   Serial.println( serialn);
+ DEBUG_PRINT("INFO : id for devices generated - alexa");
 }
 
 void startHttpServer1()
@@ -100,10 +101,15 @@ void respondToSearch2() {
 
 void start_alexa()
 {
+ DEBUG_PRINT("INFO : starting alexa");
   bool udpConnected = connectUDP();   // Connect to UDP:
   if (udpConnected) {
+    
+ DEBUG_PRINT("INFO : udp connected - alexa");
     startHttpServer1(); // Start the HTTP Server
     startHttpServer2(); // Start the HTTP Server
+    
+ DEBUG_PRINT("INFO : servers started - alexa");
   }
 }
 
@@ -135,11 +141,12 @@ bool connectUDP()
   boolean state = false;
   if (UDP.beginMulticast(WiFi.localIP(), ipMulti, portMulti1))
   {
+    DEBUG_PRINT("INFO : udp connection created - alexa");
     state = true;
   }
   else
   {
-    Serial.println("Connection failed");
+    DEBUG_PRINT("INFO : alexa connection failed");
   }
   return state;
 }
@@ -193,6 +200,7 @@ String xml_setup(int dev_id, String persis_uuid, String dev_call_name, String se
                      "\r\n";
 
   return setup_xml;
+  DEBUG_PRINT("INFO : setup xml returned - alexa");
 }
 
 String xml_eventservice() {
@@ -224,9 +232,11 @@ String xml_eventservice() {
                             "</scpd>\r\n"
                             "\r\n";
   return eventservice_xml;
+  DEBUG_PRINT("INFO : event xml returned - alexa");
 }
 
 String alexa_call_responder(int dev_id, int port, String persis_uuid) {
+  DEBUG_PRINT("INFO : alexa call response ");
   IPAddress localIP = WiFi.localIP();
   char s[16];
   sprintf(s, "%d.%d.%d.%d", localIP[0], localIP[1], localIP[2], localIP[3]);

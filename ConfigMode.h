@@ -15,6 +15,9 @@
 
 ESP8266WebServer server(WIFI_AP_CONFIG_PORT);
 ESP8266HTTPUpdateServer httpUpdater;
+
+unsigned long fall_to_error_mode = 0;
+unsigned long wifi_fail_to_connect = 0;
 DNSServer dnsServer;
 const byte DNS_PORT = 53;
 unsigned long ap_timeout_millis = 0;
@@ -33,14 +36,18 @@ const char* config_form = R"html(
 )html";
 
 void restartMCU() {
+  
+        DEBUG_PRINT("INFO - esp restart via sw");
   ESP.restart();
 }
 
 void enterConfigMode()
 {
   WiFi.mode(WIFI_OFF);
+  DEBUG_PRINT("INFO - WIFI OFF");
   delay(100);
   WiFi.mode(WIFI_AP);
+  DEBUG_PRINT("INFO - WIFI AP");
   WiFi.softAPConfig(WIFI_AP_IP, WIFI_AP_IP, WIFI_AP_Subnet);
   String HOTSPOT_SSID_STRING=String(PRODUCT_WIFI_SSID)+String("_")+String(WiFi.macAddress());
   char SSID_CHAR[HOTSPOT_SSID_STRING.length()];
@@ -54,6 +61,8 @@ void enterConfigMode()
   if (myIP == (uint32_t)0)
   {
     BlynkState::set(MODE_ERROR);
+    
+    DEBUG_PRINT("INFO - ip not generated");
     return;
   }
 
@@ -167,6 +176,8 @@ void enterConnectNet() {
   DEBUG_PRINT(String("Connecting to WiFi: ") + configStore.wifiSSID);
   
   WiFi.mode(WIFI_STA);
+   
+  DEBUG_PRINT("INFO : wifi station mode initiated");
   if (!WiFi.begin(configStore.wifiSSID, configStore.wifiPass))
     return;
   
@@ -176,23 +187,42 @@ void enterConnectNet() {
     delay(100);
     if (!BlynkState::is(MODE_CONNECTING_NET)) {
       WiFi.disconnect();
+      
+       DEBUG_PRINT("INFO : disconnecting wifi");
       return;
     }
   }
   
   if (WiFi.status() == WL_CONNECTED) {
+    
+  DEBUG_PRINT("INFO : wifi connection success");
+  
+  DEBUG_PRINT("INFO : MAC ADDRESS");
+  DEBUG_PRINT(String(WiFi.macAddress()));
+  
+  DEBUG_PRINT("INFO : LAN IP ADDRESS");
+  DEBUG_PRINT(WiFi.localIP());
     BlynkState::set(MODE_CONNECTING_CLOUD);
   } else {
     BlynkState::set(MODE_ERROR);
+    
+       DEBUG_PRINT("ERROR : wifi not connected");
   }
 }
 
 void enterConnectCloud() {
   BlynkState::set(MODE_CONNECTING_CLOUD);
+ DEBUG_PRINT("INFO : disconnecting blynk - enter connect cloud region");
 
   Blynk.disconnect();
   Blynk.config(configStore.cloudToken, configStore.cloudHost, configStore.cloudPort);
+  
+  DEBUG_PRINT(String("cloudToken: ") + configStore.cloudToken);
+  DEBUG_PRINT(String("cloudHost: ") + configStore.cloudHost);
+  DEBUG_PRINT(String("cloudPort: ") + configStore.cloudPort);
+  
   Blynk.connect(0);
+ DEBUG_PRINT("INFO : blynk config and connect initiated ");
 
   unsigned long timeoutMs = millis() + WIFI_CLOUD_CONNECT_TIMEOUT;
   while ((timeoutMs > millis()) &&
@@ -207,6 +237,7 @@ void enterConnectCloud() {
   
   if (Blynk.connected()) {
     BlynkState::set(MODE_RUNNING);
+DEBUG_PRINT("INFO : blynk connected");
 
     if (!configStore.flagConfig) {
       configStore.flagConfig = true;
@@ -215,6 +246,7 @@ void enterConnectCloud() {
     }
   } else {
     BlynkState::set(MODE_ERROR);
+    DEBUG_PRINT("ERROR : blynk not connected");
   }
 }
 
@@ -232,9 +264,34 @@ void enterSwitchToSTA() {
 
 void enterError() {
   BlynkState::set(MODE_ERROR);
+fall_to_error_mode++;
 
+    DEBUG_PRINT("fall_to_error");
+    DEBUG_PRINT(fall_to_error_mode);
+    
   if (configStore.flagConfig) {
      BlynkState::set(MODE_DUMB);
+
+  int n = WiFi.scanNetworks();
+
+  if (n > 0)
+  {
+    for (int i = 0; i < n; ++i)
+    { // check weather the ssid match with saved ssid
+    DEBUG_PRINT("WIFI - found");
+    DEBUG_PRINT(WiFi.SSID(i));
+      if (WiFi.SSID(i) == configStore.wifiSSID )
+      {
+        DEBUG_PRINT("WARN - INFO - ROUTER-SSID  found");
+        wifi_fail_to_connect++;
+    DEBUG_PRINT("wifi_fail_to_connect");
+    DEBUG_PRINT(wifi_fail_to_connect);
+       //WiFi.begin(configStore.wifiSSID, configStore.wifiPass);
+       // wifi_auth_error_count++;
+       //Serial.println(wifi_auth_error_count);
+      }
+    }
+  }
   }
   
   unsigned long timeoutMs = millis() + 10000;

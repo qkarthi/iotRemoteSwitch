@@ -10,7 +10,6 @@
 #include <WiFiUdp.h>
 #include <functional>
 
-
 WidgetRTC rtc; //declaring rtc for time getting from mobile
 WidgetTerminal terminal(V99);  //declaring terminal
 WidgetLED d1_led(V61), d2_led(V62); // declared led for device indcaation
@@ -95,7 +94,7 @@ bool alexa_initiated = false;
 WiFiUDP UDP;
 IPAddress ipMulti(239, 255, 255, 250);
 int alx_port_d[3] = {0, 1001, 1002};
-String serial,serialn;
+String serial, serialn;
 
 unsigned int portMulti1 = 1900; // local port to listen on
 
@@ -106,7 +105,8 @@ char packetBuffer[UDP_TX_PACKET_MAX_SIZE]; // Buffer to save incoming packets:
 
 //*************************************************************//
 void setup() {
-
+  Serial.begin(9600);
+  DEBUG_PRINT("INFO - setup part started");
   client_id = String(WiFi.macAddress());
 
   delay(500);
@@ -120,11 +120,13 @@ void setup() {
   d1_hw_switch_1_state = digitalRead(d1_hw_switch_pin_1); // getting the state of hardware device 1 switch
   d2_hw_switch_1_state = digitalRead(d2_hw_switch_pin_1); // getting the state of hardware device 2 switch
 
-  Serial.begin(115200);
+
 
 
   BlynkProvisioning.begin();
 
+
+  DEBUG_PRINT("INFO - blynk begin finished");
 
   d1_state =  configStore.Dev_1_state;
   d2_state =  configStore.Dev_2_state;
@@ -154,7 +156,10 @@ void setup() {
   upd_equipment_detail_timer.setInterval(10000, upd_equipment_detail_func);
 
   Serial.println(String(WiFi.macAddress()));
+
   prepareIds() ;
+
+  DEBUG_PRINT("INFO - setup completed");
 }
 
 void loop() {
@@ -177,6 +182,7 @@ void loop() {
       if (!alexa_initiated) {
         start_alexa();
         alexa_initiated = 1;
+        DEBUG_PRINT("INFO - alexa initiated");
       }
       HTTP1.handleClient();
       HTTP2.handleClient();

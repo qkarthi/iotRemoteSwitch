@@ -1,5 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////////
 BLYNK_CONNECTED() {
+  DEBUG_PRINT("INFO : blynk connected");
   FTC = false;
   rtc.begin();
 
@@ -38,6 +39,14 @@ BLYNK_CONNECTED() {
   Blynk.syncVirtual(V6);
   Blynk.syncVirtual(V7);
   comb_Dstatus();
+}
+BLYNK_DISCONNECTED() {
+  if (WiFi.status() == WL_CONNECTED) {
+    Serial.println("+2");
+  } else {
+    Serial.println("+1");
+  }
+  DEBUG_PRINT("INFO : blynk disconnected");
 }
 BLYNK_WRITE(V6) // for upnp
 {
@@ -234,17 +243,17 @@ void con_maint_func() {
   }
   if (BlynkState::is(MODE_RUNNING)) {
     if (WiFi.status() != 3) {
-      DEBUG_PRINT("\tNo WiFi. ");
+      DEBUG_PRINT("ERROR : No WiFi for connection ");
       WiFi.mode(WIFI_OFF);
       enterConnectNet();
     }
 
     if ((WiFi.status() == WL_CONNECTED) && (!Blynk.connected()))
     {
-      DEBUG_PRINT("got wifi. ");
+      DEBUG_PRINT("connected to wifi ");
       DEBUG_PRINT(WiFi.SSID().c_str());
 
-
+      DEBUG_PRINT("INFO : Disconnecting blynk in conmaintain func ");
       Blynk.disconnect();
       Blynk.config(configStore.cloudToken, configStore.cloudHost, configStore.cloudPort);
       Blynk.connect(0);
@@ -253,7 +262,7 @@ void con_maint_func() {
       while (!Blynk.connected()) {
         Blynk.connect();
         if (millis() > startConnecting + 1000) {
-          DEBUG_PRINT("Unable to connect to server. ");
+          DEBUG_PRINT("ERROR : Unable to connect to server. ");
           break;
         }
       }
