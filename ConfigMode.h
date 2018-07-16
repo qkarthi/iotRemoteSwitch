@@ -236,8 +236,9 @@ void enterConnectCloud() {
   }
   
   if (Blynk.connected()) {
-    BlynkState::set(MODE_RUNNING);
+    
 DEBUG_PRINT("INFO : blynk connected");
+    BlynkState::set(MODE_RUNNING);
 
     if (!configStore.flagConfig) {
       configStore.flagConfig = true;
@@ -245,8 +246,9 @@ DEBUG_PRINT("INFO : blynk connected");
       DEBUG_PRINT("Configuration stored to flash");
     }
   } else {
-    BlynkState::set(MODE_ERROR);
+    
     DEBUG_PRINT("ERROR : blynk not connected");
+    BlynkState::set(MODE_ERROR);
   }
 }
 
@@ -263,8 +265,8 @@ void enterSwitchToSTA() {
 }
 
 void enterError() {
-  BlynkState::set(MODE_ERROR);
-fall_to_error_mode++;
+    BlynkState::set(MODE_ERROR);
+    fall_to_error_mode++;
 
     DEBUG_PRINT("fall_to_error");
     DEBUG_PRINT(fall_to_error_mode);
@@ -276,23 +278,32 @@ fall_to_error_mode++;
 
   if (n > 0)
   {
+    DEBUG_PRINT("No.of - WIFI - found = "+ String(n));
     for (int i = 0; i < n; ++i)
     { // check weather the ssid match with saved ssid
-    DEBUG_PRINT("WIFI - found");
-    DEBUG_PRINT(WiFi.SSID(i));
+      
+      DEBUG_PRINT(WiFi.SSID(i) +"-" +String(WiFi.RSSI(i)));
       if (WiFi.SSID(i) == configStore.wifiSSID )
       {
-        DEBUG_PRINT("WARN - INFO - ROUTER-SSID  found");
+        if(WiFi.status() == WL_CONNECTED){
+        DEBUG_PRINT("ERROR - INFO - ROUTER-SSID  found");
         wifi_fail_to_connect++;
-    DEBUG_PRINT("wifi_fail_to_connect");
-    DEBUG_PRINT(wifi_fail_to_connect);
+        DEBUG_PRINT("wifi_fail_to_connect");
+        DEBUG_PRINT(wifi_fail_to_connect);
+        
+        }else{
+          DEBUG_PRINT("INFO - connected to wifi router");
+          
+        }
+       
+       
        //WiFi.begin(configStore.wifiSSID, configStore.wifiPass);
        // wifi_auth_error_count++;
        //Serial.println(wifi_auth_error_count);
       }
     }
   }
-  }
+  }else{
   
   unsigned long timeoutMs = millis() + 10000;
   while (timeoutMs > millis())
@@ -306,5 +317,6 @@ fall_to_error_mode++;
   delay(10);
 
   restartMCU();
+}
 }
 

@@ -5,8 +5,8 @@
 #define BOARD_FIRMWARE_VERSION        "1.1.0"
 #define BOARD_HARDWARE_VERSION        "1.1.0"
 
-#define BOARD_NAME                    "Iotics-Switcher"        // Name of your product. Should match App Export request info.
-#define BOARD_VENDOR                  "iotics"                 // Name of your company. Should match App Export request info.
+#define BOARD_NAME                    "Iotics-Product-Tiles"           // Name of your product. Should match App Export request info.
+#define BOARD_VENDOR                  "Iotics Technology Private Limited"           // Name of your company. Should match App Export request info.
 #define BOARD_TEMPLATE_ID             "TMPL69671"              // modified date - 20-04-2018 . please refer this link https://docs.google.com/document/d/1eNIuMXTLmeqM0j9BBMLlaJxUew-NkhPgMVLRorw1u3E/edit?usp=sharing
                                                                // PRODUCTION VERSION template .
 
@@ -19,10 +19,13 @@
 /*
    IOTICS Configuration
 */
+
 #define PRODUCT_SHORTCODE            "iotics/switcher/io_sw_2d_v_1_0"               //This will be a uniquename without any spaces.
 #define BOARD_ENV                    "development"                                  //Product environment should be development or production.
 #define OTA_URL                      "http://iotics-c-firmware.s3.amazonaws.com"    //please check it if OTA not works.
-#define CURRENT_FIRMWARE             "io_sw_2d_v_1_0_3_11_06_2018"                //Firware version will start from v.0.1 
+//#define CURRENT_FIRMWARE             "io_sw_2d_v_1_0_3_11_06_2018_debug_v_1"                //Firware version will start from v.0.1 
+#define CURRENT_FIRMWARE             "io2sw_v010-1607201811"
+
 /*
    Advanced options
 */
