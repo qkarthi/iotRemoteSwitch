@@ -15,7 +15,7 @@
 
 #define BOARD_BUTTON_PIN            16
 #define BOARD_BUTTON_ACTIVE_LOW     false
-
+#define BAUD_RATE                    9600
 /*
    IOTICS Configuration
 */
@@ -24,7 +24,7 @@
 #define BOARD_ENV                    "development"                                  //Product environment should be development or production.
 #define OTA_URL                      "http://iotics-c-firmware.s3.amazonaws.com"    //please check it if OTA not works.
 //#define CURRENT_FIRMWARE             "io_sw_2d_v_1_0_3_11_06_2018_debug_v_1"                //Firware version will start from v.0.1 
-#define CURRENT_FIRMWARE             "io2sw_v010-1607201811"
+#define CURRENT_FIRMWARE             "io2sw_v010-1607201819"
 
 /*
    Advanced options

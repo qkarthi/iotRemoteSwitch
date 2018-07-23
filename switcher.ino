@@ -5,7 +5,7 @@
 #include "BlynkProvisioning.h"
 #include <TimeLib.h>
 #include <WidgetRTC.h>
-
+#define countof(a) (sizeof(a) / sizeof(a[0]))
 //alexa header files
 #include <WiFiUdp.h>
 #include <functional>
@@ -20,9 +20,8 @@ BlynkTimer  scheduler_1_timer, scheduler_2_timer;
 //////////////////////////////////////////////////////
 String  client_id;
 String TermString, TermCharOne, TermCharRest, TermTimeStr;
-
-String lightOn_str = "\xF0\x9F\x92\xA1";
-String lightOff_str = "\xF0\x9F\x94\xB4";
+String lightOn_str = "\xe2\x97\x8f";
+String lightOff_str = "\xe2\x97\x8b";
 //////////////////////////////////////////////////////
 
 int scheduler_1_var_1;
@@ -103,9 +102,10 @@ ESP8266WebServer HTTP2(alx_port_d[2]);
 String persistent_uuid; // Where we save some socket info with the UUID
 char packetBuffer[UDP_TX_PACKET_MAX_SIZE]; // Buffer to save incoming packets:
 
+char time_stamp_string[20];
 //*************************************************************//
 void setup() {
-  Serial.begin(9600);
+  Serial.begin(BAUD_RATE);
   DEBUG_PRINT("INFO - setup part started");
   client_id = String(WiFi.macAddress());
 

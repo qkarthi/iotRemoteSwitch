@@ -150,6 +150,22 @@ BLYNK_WRITE(V99) // terminal widget
     Blynk.setProperty(V_DevSelector1, "labels", configStore.device_1_name, configStore.device_2_name);
     Blynk.setProperty(V_DevSelector2, "labels", configStore.device_1_name, configStore.device_2_name);
     terminal.println("success");
+  }else if ((String("u") == TermCharOne) & (String("ptime") == TermCharRest)) {
+    unsigned long t_current_millis_seconds = (millis() / 1000);
+    int t_seconds_hand = (t_current_millis_seconds) % 60;
+    int t_minutes_hand = (t_current_millis_seconds / 60) % 60;
+    int t_hour_hand = ((t_current_millis_seconds / 60) / 60) % 24;
+    int t_days_hand = ((t_current_millis_seconds / 60) / 60) / 24;
+    snprintf_P(time_stamp_string, countof(time_stamp_string), PSTR("%02uD%02uH%02uM%02uS"),
+               t_days_hand,
+               t_hour_hand,
+               t_minutes_hand,
+               t_seconds_hand
+              );
+    terminal.println("ESP-"+String(time_stamp_string));
+    Serial.println("%t");
+  }else if ((String("b") == TermCharOne) & (String("aud") == TermCharRest)) {
+    terminal.println("ESP-"+String(BAUD_RATE));
   }
   terminal.flush();
 }
