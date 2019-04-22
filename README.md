@@ -1,21 +1,10 @@
 ## Project Details:
-- Project name : `iotics-switcher`
+- Project name : `switcher`
 - Version : v1.0 - (DEVELOPEMENT PHASE - ALPHA)
 - Description : IOT based lights-on-off controller.
 - Documentation date : 18-04-2018 .
-- Documented by : Karthikeyan.p - product engineer (2018), karthik@iotics.io
-- Developers :
-  - Hardware section :
-    - Schematics designer : S.Naveenkumar - product engineer, Naveen@iotics.io
-	- PCB designer : S.Naveenkumar - product engineer, Naveen@iotics.io
-  - Software section :
-    - ESP8266 Programmer :  Karthikeyan.p - product engineer, karthik@iotics.io
-    - ATMEL328pu Programmer : Karthikeyan.p - product engineer, karthik@iotics.io
+- Documented by : Karthikeyan.p - product engineer (2018), qkarthi@gmail.com
 
-## Physical Details:
-- Board version : iotics_2d_v_1.0
-- Board manufactured by : pioneer cirrcuits.
-- Board manufactured date : NOVEMBER-2018. 
 
 ## Programming Details:
 - MCU_1 : esp8266-12e

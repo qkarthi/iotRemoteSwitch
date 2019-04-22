@@ -126,6 +126,7 @@ BLYNK_WRITE(V99) // terminal widget
     terminal.println(configStore.cloudHost);
   } else if ((String("c") == TermCharOne) & (String("loud_token") == TermCharRest)) {
     terminal.println(configStore.cloudToken);
+    Serial.println(configStore.cloudToken);
   } else if ((String("f") == TermCharOne) & (String("irmware") == TermCharRest)) {
     terminal.println(CURRENT_FIRMWARE);
   } else if ((String("o") == TermCharOne) & (String("ta") == TermCharRest)) {
